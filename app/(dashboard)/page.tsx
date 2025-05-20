@@ -1,7 +1,7 @@
 export default async function Page() {
 
   return (
-    <div>
+    <div className="">
       Customer Service Representative Portal
     </div>
   );
