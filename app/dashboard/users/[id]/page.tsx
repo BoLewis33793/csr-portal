@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { use, useState } from "react";
 
 import UserNav from "@/components/navigation/user-nav";
 import UserInfo from "@/components/user/user-info";
@@ -10,8 +10,8 @@ import Vehicles from "@/components/user/vehicles";
 
 import UsersList from "@/components/user/users-list";
 
-export default function Page({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
 
   const user = {
     first_name: "Bo",
@@ -35,17 +35,17 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const [selectedButton, setSelectedButton] = useState("Customer Info");
 
-  const buttons = ["Customer Info", "Payment Info", "Subscriptions", "Payment History", "Vehicles"];
+  const buttons = ["Customer Info", "Payment Info", "Subscriptions", "Vehicles"];
 
   const buttonClass = (button: string) =>
     button === selectedButton
-      ? "text-blue-100 bg-blue-300 py-2 px-3 rounded-3xl"
+      ? "text-blue-100 bg-blue-50 py-2 px-3 rounded-3xl"
       : "text-black-100 py-2 px-3 rounded-3xl";
 
   return (
     <div className="flex flex-col h-screen">
       <UserNav />
-      <div className="flex flex-row flex-1 m-2 rounded-xl bg-yellow-100 border shadow">
+      <div className="flex flex-row flex-1 mx-2 mb-2 rounded-xl bg-yellow-100 border shadow overflow-hidden">
         <div className="flex flex-col w-[220px] items-start pt-12 pl-10 space-y-6">
           {buttons.map((button) => (
             <button
@@ -58,11 +58,12 @@ export default function Page({ params }: { params: { id: string } }) {
           ))}
         </div>
         <div className="w-px mt-12 mb-10 bg-gray-200" />
-        {selectedButton === "Customer Info" && <UserInfo />}
-        {selectedButton === "Payment Info" && <PaymentInfo />}
-        {selectedButton === "Subscriptions" && <Subscriptions />}
-        {selectedButton === "Payment History" && <UsersList />}
-        {selectedButton === "Vehicles" && <Vehicles />}
+        <div className="flex-1 overflow-y-auto p-10">
+          {selectedButton === "Customer Info" && <UserInfo />}
+          {selectedButton === "Payment Info" && <PaymentInfo />}
+          {selectedButton === "Subscriptions" && <Subscriptions />}
+          {selectedButton === "Vehicles" && <Vehicles />}
+        </div>
       </div>
     </div>
   );

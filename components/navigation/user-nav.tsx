@@ -14,8 +14,7 @@ export default function UserNav() {
             className='bg-yellow-100 mr-2 py-[3px] px-[5px] border border-grey-200 rounded shadow'>
             <RiArrowLeftLongLine className='h-4 w-6 text-grey-300'/>
         </Link>
-        <RiUser3Fill className="h-[24px] w-[24px]" />
-        <span className='pl-[4px]'>Users</span>
+        <span className='pl-[4px] text-[22px]'>Bo Lewis</span>
       </div>
     </div>
   );

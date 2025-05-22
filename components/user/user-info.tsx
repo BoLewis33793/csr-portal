@@ -39,10 +39,10 @@ export default function UserInfo() {
   ];
 
   return (
-    <div className="flex-1 flex flex-col m-10 space-y-6">
+    <div className="flex flex-col h-full space-y-3">
       <span className="font-semibold text-black-100 text-[20px]">Customer Info</span>
       <div className="flex-1 flex flex-col space-y-6">
-        <div className="flex flex-col h-1/2 border rounded-xl p-6 space-y-2">
+        <div className="flex flex-col flex-1 border rounded-xl p-6 space-y-2">
           <div className="flex justify-between">
             <span className="text-black-100 font-semibold">Personal Information</span>
             <button className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center">
@@ -50,7 +50,7 @@ export default function UserInfo() {
               <RiEdit2Line className="w-[16px] h-[16px]"/>
             </button>
           </div>
-          <div className="flex-1 grid grid-cols-2 grid-rows-3 gap-y-4 gap-x-6">
+          <div className="flex-1 grid grid-cols-2 grid-rows-3 gap-y-6 gap-x-6">
             {personal_info_labels.map((item) => (
               <div key={item.label}>
                 <p className="text-[14px] text-grey-300">{item.label}</p>
@@ -61,7 +61,7 @@ export default function UserInfo() {
         <div>
       </div>
         </div>
-        <div className="flex flex-col h-1/2 border rounded-xl p-6 space-y-2">
+        <div className="flex flex-col flex-1 border rounded-xl p-6 space-y-2">
           <div className="flex justify-between">
             <span className="text-black-100 font-semibold">Address</span>
             <button className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center">
@@ -69,7 +69,7 @@ export default function UserInfo() {
               <RiEdit2Line className="w-[16px] h-[16px]"/>
             </button>
           </div>
-          <div className="flex-1 grid grid-cols-2 grid-rows-3 gap-y-4 gap-x-6">
+          <div className="flex-1 grid grid-cols-2 grid-rows-3 gap-y-6 gap-x-6">
             {address_labels.map((item) => (
               <div key={item.label}>
                 <p className="text-[14px] text-grey-300">{item.label}</p>
