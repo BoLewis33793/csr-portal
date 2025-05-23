@@ -1,25 +1,13 @@
 import { RiEdit2Line } from "@remixicon/react";
+import { User } from 'lib/definitions';
 
-export default function UserInfo() {
-  const user = {
-    first_name: "Bo",
-    last_name: "Lewis",
-    phone_number: "(770) 530-4152",
-    email: "bo.lewis3434@gmail.com",
-    status: "Overdue",
-    membership: "Monthly",
-    vehicles: 3,
-    last_wash: "09-24-2024",
-    date_of_birth: "06/11/2001",
-    gender: "Male",
-    address: {
-      street_address: "135 Brights Way",
-      city: "Dawsonville",
-      state: "Georgia",
-      postal_code: "30534",
-      country: "United States"
-    },
-  };
+type UserInfoProps = {
+  user: User;
+};
+
+export default function UserInfo({ user }: UserInfoProps) {
+
+  console.log('User Info: ', user);
 
   const personal_info_labels = [
     { label: "First Name", value: user.first_name },
@@ -31,11 +19,11 @@ export default function UserInfo() {
   ];
 
   const address_labels = [
-    { label: "Street Address", value: user.address.street_address },
-    { label: "City", value: user.address.city },
-    { label: "State", value: user.address.state },
-    { label: "Postal Code", value: user.address.postal_code },
-    { label: "Country", value: user.address.country },
+    { label: "Street Address", value: user.street_address },
+    { label: "City", value: user.city },
+    { label: "State", value: user.state },
+    { label: "Postal Code", value: user.postal_code },
+    { label: "Country", value: user.country },
   ];
 
   return (

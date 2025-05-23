@@ -1,32 +1,17 @@
 'use client';
 import { useRouter } from 'next/navigation';
+import { User } from 'lib/definitions';
 
-export default function UsersList() {
-  const user = {
-    id: 1,
-    first_name: "Bo",
-    last_name: "Lewis",
-    phone_number: "(770) 530-4152",
-    email: "bo.lewis3434343434343434@gmail.com",
-    status: "Overdue",
-    membership: "Monthly",
-    vehicles: 3,
-    last_wash: "09-24-2024",
-    date_of_birth: "06/11/2001",
-    gender: "Male",
-    address: {
-      street_address: "135 Brights Way",
-      city: "Dawsonville",
-      state: "Georgia",
-      postal_code: "30534",
-      country: "United States"
-    },
-  };
+type UsersListProps = {
+  users: User[];
+};
+
+export default function UsersList({ users }: UsersListProps) {
 
   const router = useRouter();
 
-  const handleClick = () => {
-    router.push(`/dashboard/users/${user.id}`);
+  const handleClick = (id: number) => {
+    router.push(`/dashboard/users/${id}`);
   };
 
   return (
@@ -48,16 +33,20 @@ export default function UsersList() {
               </tr>
             </thead>
             <tbody className="text-[14px]">
-              {[...Array(50)].map((_, i) => (
-                <tr key={i} className="h-[72px] border border-gray-200 hover:bg-blue-50 cursor-pointer" onClick={handleClick}>
+              {users.map((user, i) => (
+                <tr 
+                  key={i} 
+                  className="h-[72px] border border-gray-200 hover:bg-blue-50 cursor-pointer" 
+                  onClick={() => handleClick(user.id)}
+                >
                   <td className="w-1/12 px-4 py-2">#{user.id}</td>
                   <td className="w-1/6 px-4 py-2">{user.first_name + " " + user.last_name}</td>
                   <td className="w-1/4 px-4 py-2">{user.email}</td>
                   <td className="w-1/6 px-4 py-2">{user.phone_number}</td>
-                  <td className="w-1/12 px-4 py-2">{user.vehicles}</td>
-                  <td className="w-1/12 px-4 py-2">{user.membership}</td>
-                  <td className="w-1/12 px-4 py-2">{user.status}</td>
-                  <td className="w-1/6 px-4 py-2">{user.last_wash}</td>
+                  <td className="w-1/12 px-4 py-2">0</td>
+                  <td className="w-1/12 px-4 py-2">monthly</td>
+                  <td className="w-1/12 px-4 py-2">paid</td>
+                  <td className="w-1/6 px-4 py-2">09-24-2024</td>
                 </tr>
               ))}
             </tbody>
