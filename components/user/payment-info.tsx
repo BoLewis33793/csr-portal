@@ -3,34 +3,34 @@ import {
   RiAddFill
 } from "@remixicon/react";
 
+import PaymentCardInfo from "./payment-card-info";
+
 export default function PaymentInfo() {
+  const card_list = [
+    {
+      icon: RiVisaFill,
+      card_number: "**** **** 2349",
+      expiration_number: "exp 12/24",
+    },
+    {
+      icon: RiVisaFill,
+      card_number: "**** **** 7810",
+      expiration_number: "exp 03/26",
+    },
+    {
+      icon: RiVisaFill,
+      card_number: "**** **** 5681",
+      expiration_number: "exp 06/25",
+    },
+  ];
+
   return (
     <div className="flex flex-col space-y-3 h-full overflow-hidden">
       <span className="font-semibold text-black-100 text-[20px]">Payment Info</span>
 
       {/* Scrollable cards container */}
       <div className="overflow-x-auto border rounded-3xl">
-        <div className="flex flex-row space-x-3 p-3 min-w-max">
-          {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className="min-h-[160px] min-w-[240px] grid grid-rows-[auto_1fr_auto] p-4 bg-black-100 rounded-2xl text-white shadow"
-            >
-              <RiVisaFill className="h-10 w-10" />
-              <div className="flex justify-center items-center">
-                <span className="text-xl tracking-widest">**** **** 2349</span>
-              </div>
-              <div className="flex justify-end">
-                <span className="text-md">exp 12/24</span>
-              </div>
-            </div>
-          ))}
-          <button
-              className="flex min-h-[160px] min-w-[240px] p-4 bg-blue-100 rounded-2xl text-yellow-100 hover:bg-blue-400 shadow"
-            >
-              <RiAddFill className="h-[36px] w-[36px]"/>
-          </button>
-        </div>
+        <PaymentCardInfo list={card_list}/>
       </div>
 
       <span className="font-semibold text-black-100 text-[18px]">History</span>
