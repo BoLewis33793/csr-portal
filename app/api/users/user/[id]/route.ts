@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserById } from '@/lib/db'; // Make sure this is the correct path to your function
+import { getUserById } from '@/lib/db'; // make sure this path is correct
 
 export async function GET(
-  request: Request,
-  context: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
-  const id = Number(context.params.id);
+  const id = Number(params.id);
 
   if (isNaN(id)) {
     return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
   }
 
   try {
-    console.log('User ID: ', id);
-    const user = await getUserById(id); // ✅ Use your DB function
-    console.log('User API: ', user);
+    console.log('User ID:', id);
+    const user = await getUserById(id);
+    console.log('User API:', user);
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
