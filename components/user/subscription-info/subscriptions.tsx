@@ -1,4 +1,4 @@
-import { RiVisaFill } from "@remixicon/react";
+import { RiArrowLeftLongLine, RiVisaFill } from "@remixicon/react";
 
 import { Subscription } from "@/lib/definitions";
 import { useState, useEffect } from "react";
@@ -38,7 +38,20 @@ export default function Subscriptions({ id }: { id: number }) {
   return (
     <div className="flex flex-col space-y-3 h-full overflow-hidden">
       <span className="font-semibold text-black text-[20px]">
-        {isSubscriptionSelected ? "Subscription" : "Subscriptions"}
+        {isSubscriptionSelected ? (
+          <div className="flex items-center text-[24px] text-black-100">
+            <button 
+                onClick={() => {
+                  setIsSubscriptionSelected(false);
+                }}
+                className='bg-yellow-100 mr-2 py-[3px] px-[5px] border border-grey-200 rounded shadow'>
+                <RiArrowLeftLongLine className='h-4 w-6 text-grey-300'/>
+            </button>
+            <span className='pl-[4px] text-[22px]'>
+              {subscription?.plan_type + ' / ' + subscription?.frequency}
+            </span>
+          </div>
+        ): "Subscriptions"}
       </span>
       {isSubscriptionSelected ? (
         <p className="text-gray-700">{subscription?.plan_type}</p>

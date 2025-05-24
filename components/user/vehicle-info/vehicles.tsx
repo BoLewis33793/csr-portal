@@ -1,4 +1,5 @@
 import { Vehicle } from "@/lib/definitions";
+import { RiArrowLeftLongLine } from "@remixicon/react";
 import { useState, useEffect } from "react";
 
 export default function Vehicles({ id }: { id: number }) {
@@ -55,7 +56,21 @@ export default function Vehicles({ id }: { id: number }) {
   return (
     <div className="flex flex-col space-y-2 h-full overflow-hidden">
       <span className="font-semibold text-black text-[20px]">
-        {isVehicleSelected ? "Vehicle" : "Vehicles"}
+        {isVehicleSelected ? (
+          <div className="flex items-center text-[24px] text-black-100">
+            <button 
+                onClick={() => {
+                  setIsVehiclesSelected(false);
+                }}
+                className='bg-yellow-100 mr-2 py-[3px] px-[5px] border border-grey-200 rounded shadow'
+              >
+                <RiArrowLeftLongLine className='h-4 w-6 text-grey-300'/>
+            </button>
+            <span className='pl-[4px] text-[22px]'>
+              {vehicle?.year + ' ' + vehicle?.make + ' ' + vehicle?.model}
+            </span>
+          </div>
+        ) : "Vehicles"}
       </span>
       {isVehicleSelected ? (
         <p className="text-gray-700">{vehicle?.plate_number}</p>
