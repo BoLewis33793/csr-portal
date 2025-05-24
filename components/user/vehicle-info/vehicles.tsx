@@ -80,7 +80,6 @@ export default function Vehicles({ id }: { id: number }) {
                       key={i}
                       className="hover:bg-blue-50 cursor-pointer transition-colors h-14"
                       onClick={() => handleClick(vehicle.id)}
-
                     >
                       <td className="min-w-[140px] px-4 py-2 first:rounded-l-2xl">{vehicle.make + ' ' + vehicle.model}</td>
                       <td className="min-w-[80px] px-4 py-2">{vehicle.color}</td>

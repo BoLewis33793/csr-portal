@@ -1,8 +1,28 @@
 import { Payment_Card } from "@/lib/definitions";
 import { RiAddFill, RiVisaFill } from "@remixicon/react";
 
-export default function PaymentCardInfo({ list }: { list: Payment_Card[] }) {
-  console.log('Payment Cards: ', list);
+export default function PaymentCardInfo({
+  list,
+  setCard,
+  setIsCardSelected,
+  setShowPaymentInfo
+}: {
+  list: Payment_Card[];
+  setCard: (card: Payment_Card) => void;
+  setIsCardSelected: (value: boolean) => void;
+  setShowPaymentInfo: (value: boolean) => void;
+}) {
+
+  const handleClick = (id: number) => {
+    const selectedCard = list.find(card => card.id === id);
+
+    if (selectedCard) {
+      setCard(selectedCard);
+      setIsCardSelected(true);
+      setShowPaymentInfo(false);
+    }
+  }
+
   return (
     <div className="flex flex-row space-x-3 p-3 min-w-max">
       {/* Render all real cards first */}
@@ -11,6 +31,7 @@ export default function PaymentCardInfo({ list }: { list: Payment_Card[] }) {
           <button
             key={index}
             className="min-h-[160px] w-[240px] grid grid-rows-[auto_1fr_auto] p-4 bg-black-100 rounded-2xl text-white shadow hover:bg-black-200"
+            onClick={() => handleClick(item.id)}
           >
             <RiVisaFill className="h-10 w-10" />
             <div className="flex justify-center items-center">
@@ -44,4 +65,3 @@ export default function PaymentCardInfo({ list }: { list: Payment_Card[] }) {
     </div>
   );
 }
-
