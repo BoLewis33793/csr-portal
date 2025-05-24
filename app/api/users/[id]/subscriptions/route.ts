@@ -2,15 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserSubscriptionsById } from '@/lib/db'; // Make sure this is the correct path to your function
 
 export async function GET(
-    request: NextRequest,
-    context: { params: { id: string } }
-  ) {
-    const id = Number(context.params.id);
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const id = (await params).id;
 
   console.log('id: ', id);
 
-  if (isNaN(id)) {
-    return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
+  if (!id) {
+    return NextResponse.json({ error: 'No user ID' }, { status: 400 });
   }
 
   try {

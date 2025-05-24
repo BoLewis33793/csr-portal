@@ -17,7 +17,7 @@ export default function PaymentInfo({ id }: { id: number }) {
   useEffect(() => {
     async function fetchPurchaseHistory() {
       try {
-        const res = await fetch(`/api/users/user/purchases/${id}`);
+        const res = await fetch(`/api/users/${id}/purchases`);
         const data = await res.json();
         setPurchaseHistory(data);
       } catch (error) {
@@ -33,7 +33,7 @@ export default function PaymentInfo({ id }: { id: number }) {
   useEffect(() => {
     async function fetchPaymentCards() {
       try {
-        const res = await fetch(`/api/users/user/payment-cards/${id}`);
+        const res = await fetch(`/api/users/${id}/payment-cards`);
         const data = await res.json();
         setCardList(data);
       } catch (error) {

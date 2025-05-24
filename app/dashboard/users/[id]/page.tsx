@@ -4,9 +4,10 @@ import { User } from "@/lib/definitions";
 
 import UserNav from "@/components/navigation/user-nav";
 import UserInfo from "@/components/user/user-info";
-import PaymentInfo from "@/components/user/payment-info";
-import Subscriptions from "@/components/user/subscriptions";
-import Vehicles from "@/components/user/vehicles";
+import PaymentInfo from "@/components/user/payment-info/payment-info";
+import Subscriptions from "@/components/user/subscription-info/subscriptions";
+import Vehicles from "@/components/user/vehicle-info/vehicles";
+import UserInfoNav from 'components/navigation/user-info-nav';
 
 export default function Page({ params }: { params: Promise<{ id: number }> }) {
   const { id } = use(params);
@@ -19,7 +20,7 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await fetch(`/api/users/user/${id}`);
+        const res = await fetch(`/api/users/${id}`);
         const data = await res.json();
         setUser(data);
       } catch (error) {
@@ -45,15 +46,15 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
       <UserNav name={user.first_name + ' ' + user.last_name}/>
       <div className="flex flex-row flex-1 mx-2 mb-2 rounded-xl bg-yellow-100 border shadow overflow-hidden">
         <div className="hidden desktop-large:block flex flex-col w-[220px] items-start p-10 space-y-6">
-          {buttons.map((button) => (
-            <button
-              key={button}
-              onClick={() => setSelectedButton(button)}
-              className={buttonClass(button)}
-            >
-              {button}
-            </button>
-          ))}
+            {buttons.map((button) => (
+              <button
+                key={button}
+                onClick={() => setSelectedButton(button)}
+                className={buttonClass(button)}
+              >
+                {button}
+              </button>
+            ))}
         </div>
         <div className="hidden desktop-large:block w-px mt-12 mb-10 bg-gray-200" />
         <div className="flex-1 overflow-y-auto p-10 desktop-large:p-10">

@@ -13,7 +13,7 @@ export default function Subscriptions({ id }: { id: number }) {
   useEffect (() => {
     const fetchSubscriptions = async () => {
       try {
-        const res = await fetch(`/api/users/user/${id}/subscriptions`);
+        const res = await fetch(`/api/users/${id}/subscriptions`);
         const data = await res.json();
         console.log("Fetched subscriptions:", data);
         setSubscriptions(data);

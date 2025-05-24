@@ -72,7 +72,7 @@ export default function UserInfo({ user }: UserInfoProps) {
                   />
                 ) : (
                   <p className="pt-1">
-                    {value === "date_of_birth"
+                    {label === "Date of Birth"
                       ? new Date(value).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: '2-digit',
@@ -122,13 +122,7 @@ export default function UserInfo({ user }: UserInfoProps) {
                     />
                   ) : (
                     <p className="pt-1">
-                      {value === "date_of_birth"
-                        ? new Date(value).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                          })
-                        : value}
+                      {value}
                     </p>
                   )}
                 </div>

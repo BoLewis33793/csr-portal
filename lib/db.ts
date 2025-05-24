@@ -30,26 +30,26 @@ export async function getUsers() {
 
 
 
-export async function getUserById(id: number) {
+export async function getUserById(id: string) {
   const result = await sql`SELECT * FROM users WHERE id = ${id}`;
   return result[0]; // Return the first (and only) user found
 }
 
-export async function getUserCardById(id: number) {
+export async function getUserCardById(id: string) {
   const result = await sql`
     SELECT * FROM payment_cards WHERE id = ${id}
   `;
   return result;
 }
 
-export async function getUserCardsById(userId: number) {
+export async function getUserCardsById(userId: string) {
   const result = await sql`
     SELECT * FROM payment_cards WHERE user_id = ${userId}
   `;
   return result;
 }
 
-export async function getUserPaymentHistoryById(userId: number) {
+export async function getUserPaymentHistoryById(userId: string) {
   const result = await sql`
     SELECT * FROM purchases
     WHERE user_id = ${userId}
@@ -57,7 +57,12 @@ export async function getUserPaymentHistoryById(userId: number) {
   return result;
 }
 
-export async function getUserVehiclesById(userId: number) {
+export async function getVehicleById(id: string) {
+  const result = await sql`SELECT * FROM vehicles WHERE id = ${id}`;
+  return result[0]; // Return the first (and only) user found
+}
+
+export async function getUserVehiclesById(userId: string) {
   const vehicles = await sql`
     SELECT 
       v.*,
@@ -72,7 +77,7 @@ export async function getUserVehiclesById(userId: number) {
   return vehicles;
 }
 
-export async function getUserSubscriptionsById(userId: number) {
+export async function getUserSubscriptionsById(userId: string) {
   const subscriptions = await sql`
     SELECT 
       s.*,

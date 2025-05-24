@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserCardsById } from '@/lib/db'; // Make sure this is the correct path to your function
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const id = Number(params.id);
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const id = (await params).id;
 
-  console.log('IN payment-cards');
+  console.log('id: ', id);
 
-  if (isNaN(id)) {
-    return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
+  if (!id) {
+    return NextResponse.json({ error: 'No user ID' }, { status: 400 });
   }
 
   try {
