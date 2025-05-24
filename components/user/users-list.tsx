@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from 'lib/definitions';
 
@@ -27,8 +28,8 @@ export default function UsersList({ users }: UsersListProps) {
                 <th className="min-w-[160px] px-4 py-2">Email</th>
                 <th className="min-w-[140px] px-4 py-2">Phone</th>
                 <th className="min-w-[100px] px-4 py-2">Vehicles</th>
-                <th className="min-w-[100px] px-4 py-2">Plan</th>
-                <th className="min-w-[100px] px-4 py-2">Status</th>
+                <th className="min-w-[100px] px-4 py-2">Subscriptions</th>
+                <th className="min-w-[100px] px-4 py-2">Purchases</th>
                 <th className="min-w-[140px] px-4 py-2">Last Wash</th>
               </tr>
             </thead>
@@ -43,10 +44,16 @@ export default function UsersList({ users }: UsersListProps) {
                   <td className="w-1/6 px-4 py-2">{user.first_name + " " + user.last_name}</td>
                   <td className="w-1/4 px-4 py-2">{user.email}</td>
                   <td className="w-1/6 px-4 py-2">{user.phone_number}</td>
-                  <td className="w-1/12 px-4 py-2">0</td>
-                  <td className="w-1/12 px-4 py-2">monthly</td>
-                  <td className="w-1/12 px-4 py-2">paid</td>
-                  <td className="w-1/6 px-4 py-2">09-24-2024</td>
+                  <td className="w-1/12 px-4 py-2">{user.vehicle_count}</td>
+                  <td className="w-1/12 px-4 py-2">{user.subscription_count}</td>
+                  <td className="w-1/12 px-4 py-2">{user.purchase_count}</td>
+                  <td className="w-1/6 px-4 py-2">
+                    {user.last_wash && new Date(user.last_wash).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit'
+                    })}
+                  </td>
                 </tr>
               ))}
             </tbody>

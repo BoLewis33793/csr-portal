@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserById } from '@/lib/db'; // Make sure this is the correct path to your function
+import { getUserVehiclesById } from '@/lib/db'; // Make sure this is the correct path to your function
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const id = Number(params.id);
@@ -10,16 +10,15 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
   try {
     console.log('User ID: ', id);
-    const user = await getUserById(id); // ✅ Use your DB function
-    console.log('User API: ', user);
+    const vehicles = await getUserVehiclesById(id); // ✅ Use your DB function
+    console.log('Vehicles API: ', vehicles);
 
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    if (!vehicles) {
+      return NextResponse.json({ error: 'Vehicles not found' }, { status: 404 });
     }
 
-    return NextResponse.json(user);
+    return NextResponse.json(vehicles);
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

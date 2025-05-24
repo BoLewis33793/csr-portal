@@ -13,32 +13,54 @@ export type User = {
     state: string;
     postal_code: string;
     country: string;
-    subscriptions: Subscription[];
-    vehicles: Vehicle[];
+    subscription_count: number;
+    vehicle_count: number;
+    purchase_count: number;
   };
 
   export type Payment_Card = {
+    id: number;
+    user_id: number;
     card_type: string;
-    card_number: number;
+    card_number: string;
     card_expiration: string;
-  }
+  };
 
   export type Subscription = {
+    id: number;
+    user_id: number;
     plan_type: string;
     status: string;
     frequency: string;
     start_date: string;
     renewal_date: string;
-    payment_card: Payment_Card;
     amount: number;
+    payment_card_id: number;
+    card_type: string;
+    card_number: string;
   }
 
   export type Vehicle = {
+    id: number;
+    user_id: number;
     make: string;
     model: string;
     color: string;
-    year: string;
+    year: number;
     plate_number: string;
-    subscription: Subscription;
+    subscription_id: number;
+    subscription_name: string;
+    subscription_status: string;
   }
+
+  export type Purchase = {
+    id: number;
+    user_id: number;
+    name: string;
+    status: 'Completed' | 'Failed' | 'Pending'; // optionally narrow to known values
+    date: string; // ISO string (or Date, depending on how it's returned from DB)
+    payment_card_id: number | null;
+    amount: number;
+    type: 'subscription' | 'wash' | 'coupon' | string; // allow fallback string type if dynamic
+  };
   

@@ -1,12 +1,29 @@
-import { 
-  RiEdit2Line,
-  RiVisaFill,
-} from "@remixicon/react";
+import { RiVisaFill } from "@remixicon/react";
 
-export default function Subscriptions() {
+import { Subscription } from "@/lib/definitions";
+import { useState, useEffect } from "react";
+
+export default function Subscriptions({ id }: { id: number }) {
   const status = [
     "Active", "Overdue", "Cancelled", "Trialing", "Expired", "Refunded"
   ];
+
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+
+  useEffect (() => {
+    const fetchSubscriptions = async () => {
+      try {
+        const res = await fetch(`/api/users/user/${id}/subscriptions`);
+        const data = await res.json();
+        console.log("Fetched subscriptions:", data);
+        setSubscriptions(data);
+      } catch (error) {
+        console.error("Failed to fetch vehicles: ", error);
+      }
+    };
+
+    fetchSubscriptions();
+  }, [id]);
 
   return (
     <div className="flex flex-col space-y-3 h-full overflow-hidden">
@@ -29,25 +46,39 @@ export default function Subscriptions() {
                 </tr>
               </thead>
               <tbody className="text-[14px]">
-                {[...Array(3)].map((_, i) => (
+                {subscriptions.map((subscription, i) => (
                   <tr
                     key={i}
                     className="hover:bg-blue-50 cursor-pointer transition-colors h-14"
                   >
-                    <td className="min-w-[160px] px-4 py-2 first:rounded-l-2xl">Monthly Pro Plan</td>
+                    <td className="min-w-[160px] px-4 py-2 first:rounded-l-2xl">{subscription.plan_type}</td>
                     <td className="min-w-[100px] px-4 py-2">
-                      <p className="inline-block py-[3px] px-3 bg-green-200 text-green-100 rounded-2xl">Active</p>
+                      <p className="inline-block py-[3px] px-3 bg-green-200 text-green-100 rounded-2xl">{subscription.status}</p>
                     </td>
-                    <td className="min-w-[120px] px-4 py-2">Monthly</td>
-                    <td className="min-w-[120px] px-4 py-2">08-17-2024</td>
-                    <td className="min-w-[140px] px-4 py-2">11-17-2024</td>
+                    <td className="min-w-[120px] px-4 py-2">{subscription.frequency}</td>
+                    <td className="min-w-[120px] px-4 py-2">
+                      {subscription.start_date && new Date(subscription.start_date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                      })}
+                    </td>
+                    <td className="min-w-[140px] px-4 py-2">
+                      {subscription.renewal_date && new Date(subscription.renewal_date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit'
+                        })}
+                    </td>
                     <td className="min-w-[160px] px-4 py-2">
                       <div className="flex items-center">
                         <RiVisaFill className="mr-2 h-6 w-6" />
-                        <span className="text-[14px]">2349</span>
+                        <span className="text-[14px]">
+                          {subscription && subscription.card_number ? subscription.card_number.slice(-4) : '----'}
+                        </span>
                       </div>
                     </td>
-                    <td className="min-w-[100px] px-4 py-2 last:rounded-r-2xl">$12.99</td>
+                    <td className="min-w-[100px] px-4 py-2 last:rounded-r-2xl">{subscription.amount}</td>
                   </tr>
                 ))}
               </tbody>

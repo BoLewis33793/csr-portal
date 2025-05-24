@@ -1,12 +1,27 @@
-import { 
-  RiEdit2Line,
-  RiVisaFill,
-} from "@remixicon/react";
+import { Vehicle } from "@/lib/definitions";
+import { useState, useEffect } from "react";
 
-export default function Vehicles() {
+export default function Vehicles({ id }: { id: number }) {
   const status = [
     "Active", "Overdue", "Cancelled", "Trialing", "Expired", "Refunded"
   ];
+
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+
+  useEffect (() => {
+    const fetchVehicles = async () => {
+      try {
+        const res = await fetch(`/api/users/user/${id}/vehicles`);
+        const data = await res.json();
+        console.log("Fetched vehicles:", data);
+        setVehicles(data);
+      } catch (error) {
+        console.error("Failed to fetch vehicles: ", error);
+      }
+    };
+
+    fetchVehicles();
+  }, [id]);
 
   return (
     <div className="flex flex-col space-y-2 h-full overflow-hidden">
@@ -28,18 +43,18 @@ export default function Vehicles() {
                 </tr>
               </thead>
               <tbody className="text-[14px]">
-                {[...Array(3)].map((_, i) => (
+                {vehicles.map((vehicle, i) => (
                   <tr
                     key={i}
                     className="hover:bg-blue-50 cursor-pointer transition-colors h-14"
                   >
-                    <td className="min-w-[140px] px-4 py-2 first:rounded-l-2xl">Toyota Camry</td>
-                    <td className="min-w-[80px] px-4 py-2">White</td>
-                    <td className="min-w-[60px] px-4 py-2">2020</td>
-                    <td className="min-w-[100px] px-4 py-2">CH179T</td>
-                    <td className="min-w-[140px] px-4 py-2">Monthly Pro Plan</td>
+                    <td className="min-w-[140px] px-4 py-2 first:rounded-l-2xl">{vehicle.make + ' ' + vehicle.model}</td>
+                    <td className="min-w-[80px] px-4 py-2">{vehicle.color}</td>
+                    <td className="min-w-[60px] px-4 py-2">{vehicle.year}</td>
+                    <td className="min-w-[100px] px-4 py-2">{vehicle.plate_number}</td>
+                    <td className="min-w-[140px] px-4 py-2">{vehicle.subscription_name}</td>
                     <td className="min-w-[100px] px-4 py-2">
-                      <p className="inline-block py-[3px] px-3 bg-green-200 text-green-100 rounded-2xl">Active</p>
+                      <p className="inline-block py-[3px] px-3 bg-green-200 text-green-100 rounded-2xl">{vehicle.subscription_status}</p>
                     </td>
                   </tr>
                 ))}

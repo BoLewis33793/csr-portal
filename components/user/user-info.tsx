@@ -1,13 +1,20 @@
-import { RiEdit2Line } from "@remixicon/react";
+'use client';
+import { RiEdit2Line, RiSaveLine } from "@remixicon/react";
 import { User } from 'lib/definitions';
+import { useState } from "react";
 
 type UserInfoProps = {
   user: User;
 };
 
 export default function UserInfo({ user }: UserInfoProps) {
+  const [isEditingPersonalInfo, setIsEditingPersonalInfo] = useState(false);
+  const toggleEditPersonalInfo = () => setIsEditingPersonalInfo(prev => !prev);
 
-  console.log('User Info: ', user);
+  const [isEditingAddressInfo, setIsEditingAddressInfo] = useState(false);
+  const toggleEditAddressInfo = () => setIsEditingAddressInfo(prev => !prev);
+
+  const handleChange = () => {};
 
   const personal_info_labels = [
     { label: "First Name", value: user.first_name },
@@ -31,18 +38,49 @@ export default function UserInfo({ user }: UserInfoProps) {
       <span className="font-semibold text-black-100 text-[20px]">Customer Info</span>
       <div className="flex-1 flex flex-col space-y-6">
         <div className="flex flex-col flex-1 border rounded-xl p-6 space-y-2">
-          <div className="flex justify-between">
+          <div className="flex justify-between pb-2">
             <span className="text-black-100 font-semibold">Personal Information</span>
-            <button className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center">
-              Edit
-              <RiEdit2Line className="w-[16px] h-[16px]"/>
-            </button>
+            <div className="flex flex-row space-x-2">
+              {isEditingPersonalInfo && 
+                <button 
+                  onClick={toggleEditPersonalInfo}
+                  className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
+                >
+                  Save
+                  <RiSaveLine className="w-[16px] h-[16px]"/>
+                </button>
+              }
+              <button 
+                onClick={toggleEditPersonalInfo}
+                className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
+              >
+
+                {isEditingPersonalInfo ? 'Cancel' : 'Edit'}
+                <RiEdit2Line className="w-[16px] h-[16px]"/>
+              </button>
+            </div>
           </div>
           <div className="flex-1 grid grid-cols-2 grid-rows-3 gap-y-6 gap-x-6">
-            {personal_info_labels.map((item) => (
-              <div key={item.label}>
-                <p className="text-[14px] text-grey-300">{item.label}</p>
-                <p>{item.value}</p>
+            {personal_info_labels.map(({ label, value }) => (
+              <div key={label}>
+                <p className="text-[14px] text-grey-300">{label}</p>
+                {isEditingPersonalInfo ? (
+                  <input
+                    defaultValue={value}
+                    onChange={handleChange}
+                    className="border rounded px-2 py-1 w-full"
+                  />
+                ) : (
+                  <p className="pt-1">
+                    {value === "date_of_birth"
+                      ? new Date(value).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                        })
+                      : value}
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -50,20 +88,51 @@ export default function UserInfo({ user }: UserInfoProps) {
       </div>
         </div>
         <div className="flex flex-col flex-1 border rounded-xl p-6 space-y-2">
-          <div className="flex justify-between">
+          <div className="flex justify-between pb-2">
             <span className="text-black-100 font-semibold">Address</span>
-            <button className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center">
-              Edit
-              <RiEdit2Line className="w-[16px] h-[16px]"/>
-            </button>
+            <div className="flex flex-row space-x-2">
+              {isEditingAddressInfo && 
+                <button 
+                  onClick={toggleEditAddressInfo}
+                  className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
+                >
+                  Save
+                  <RiSaveLine className="w-[16px] h-[16px]"/>
+                </button>
+              }
+              <button 
+                onClick={toggleEditAddressInfo}
+                className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
+              >
+
+                {isEditingAddressInfo ? 'Cancel' : 'Edit'}
+                <RiEdit2Line className="w-[16px] h-[16px]"/>
+              </button>
+            </div>
           </div>
           <div className="flex-1 grid grid-cols-2 grid-rows-3 gap-y-6 gap-x-6">
-            {address_labels.map((item) => (
-              <div key={item.label}>
-                <p className="text-[14px] text-grey-300">{item.label}</p>
-                <p>{item.value}</p>
-              </div>
-            ))}
+            {address_labels.map(({ label, value }) => (
+                <div key={label}>
+                  <p className="text-[14px] text-grey-300">{label}</p>
+                  {isEditingAddressInfo ? (
+                    <input
+                      defaultValue={value}
+                      onChange={handleChange}
+                      className="border rounded px-2 py-1 w-full"
+                    />
+                  ) : (
+                    <p className="pt-1">
+                      {value === "date_of_birth"
+                        ? new Date(value).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                          })
+                        : value}
+                    </p>
+                  )}
+                </div>
+              ))}
           </div>
         </div>
       </div>

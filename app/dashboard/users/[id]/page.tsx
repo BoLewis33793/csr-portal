@@ -8,7 +8,7 @@ import PaymentInfo from "@/components/user/payment-info";
 import Subscriptions from "@/components/user/subscriptions";
 import Vehicles from "@/components/user/vehicles";
 
-export default function Page({ params }: { params: Promise<{ id: string }> }) {
+export default function Page({ params }: { params: Promise<{ id: number }> }) {
   const { id } = use(params);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -19,7 +19,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await fetch(`/api/user/${id}`);
+        const res = await fetch(`/api/users/user/${id}`);
         const data = await res.json();
         setUser(data);
       } catch (error) {
@@ -42,9 +42,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <div className="flex flex-col h-screen">
-      <UserNav />
-      <div className="flex flex-col desktop-large:flex-row flex-1 mx-2 mb-2 rounded-xl bg-yellow-100 border shadow overflow-hidden">
-        <div className="flex flex-row desktop-large:flex-col w-[220px] items-start px-10 py-6 desktop-large:pt-12 desktop-large:pl-10 space-x-6 desktop-large:space-x-0 desktop-large:space-y-6">
+      <UserNav name={user.first_name + ' ' + user.last_name}/>
+      <div className="flex flex-row flex-1 mx-2 mb-2 rounded-xl bg-yellow-100 border shadow overflow-hidden">
+        <div className="hidden desktop-large:block flex flex-col w-[220px] items-start p-10 space-y-6">
           {buttons.map((button) => (
             <button
               key={button}
@@ -56,11 +56,11 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
           ))}
         </div>
         <div className="hidden desktop-large:block w-px mt-12 mb-10 bg-gray-200" />
-        <div className="flex-1 overflow-y-auto pb-10 px-10 desktop-large:p-10">
+        <div className="flex-1 overflow-y-auto p-10 desktop-large:p-10">
           {selectedButton === "Customer Info" && <UserInfo user={user} />}
-          {selectedButton === "Payment Info" && <PaymentInfo />}
-          {selectedButton === "Subscriptions" && <Subscriptions />}
-          {selectedButton === "Vehicles" && <Vehicles />}
+          {selectedButton === "Payment Info" && <PaymentInfo id={id} />}
+          {selectedButton === "Subscriptions" && <Subscriptions id={id}/>}
+          {selectedButton === "Vehicles" && <Vehicles id={id}/>}
         </div>
       </div>
     </div>
