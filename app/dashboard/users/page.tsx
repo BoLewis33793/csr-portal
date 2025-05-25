@@ -1,20 +1,19 @@
-import { getUsersWithSearch } from "@/lib/db";
+import { Suspense } from 'react';
+import UsersNav from '@/components/navigation/users-nav';
+import UsersListNav from '@/components/user/users-list-nav';
+import UsersListWrapper from '@/components/user/users-list-wrapper';
+import UsersList from '@/components/user/users-list';
 
-import UsersNav from "@/components/navigation/users-nav";
-import UsersListNav from "@/components/user/users-list-nav";
-import UsersList from "@/components/user/users-list";
-import { User } from "@/lib/definitions";
-
-export default async function Page({ searchParams }: { searchParams?: Record<string, string | undefined> }) {
-  const query = searchParams?.query ?? '';
-
-  const users = await getUsersWithSearch(query) as User[];
-
+export default function Page() {
   return (
     <div className="flex flex-col h-screen">
       <UsersNav />
-      <UsersListNav />
-      <UsersList users={users} />
+      <Suspense fallback={<div>Loading search bar...</div>}>
+        <UsersListNav />
+      </Suspense>
+      <Suspense fallback={<div>Loading users...</div>}>
+        <UsersListWrapper />
+      </Suspense>
     </div>
   );
 }
