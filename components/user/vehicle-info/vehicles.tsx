@@ -1,6 +1,7 @@
 import { Vehicle } from "@/lib/definitions";
-import { RiArrowLeftLongLine } from "@remixicon/react";
+import { RiAddLine, RiArrowLeftLongLine } from "@remixicon/react";
 import { useState, useEffect } from "react";
+import VehicleInfo from "./vehicle";
 
 export default function Vehicles({ id }: { id: number }) {
   const status = [
@@ -22,7 +23,7 @@ export default function Vehicles({ id }: { id: number }) {
   useEffect (() => {
     const fetchVehicles = async () => {
       try {
-        const res = await fetch(`/api/users/${id}/vehicles`);
+        const res = await fetch(`/api/users/user/${id}/vehicles`);
         const data = await res.json();
         console.log("Fetched vehicles:", data);
         setVehicles(data);
@@ -54,10 +55,10 @@ export default function Vehicles({ id }: { id: number }) {
   */
 
   return (
-    <div className="flex flex-col space-y-2 h-full overflow-hidden">
+    <div className="flex flex-1 flex-col space-y-2 h-full overflow-hidden">
       <span className="font-semibold text-black text-[20px]">
         {isVehicleSelected ? (
-          <div className="flex items-center text-[24px] text-black-100">
+          <div className="flex items-center text-[24px] text-black-100 mb-2">
             <button 
                 onClick={() => {
                   setIsVehiclesSelected(false);
@@ -66,14 +67,31 @@ export default function Vehicles({ id }: { id: number }) {
               >
                 <RiArrowLeftLongLine className='h-4 w-6 text-grey-300'/>
             </button>
-            <span className='pl-[4px] text-[22px]'>
+            <span className='pl-[4px] text-[18px]'>
               {vehicle?.year + ' ' + vehicle?.make + ' ' + vehicle?.model}
             </span>
+            <div className="min-w-[50px] px-4 py-2">
+              <p className="py-[3px] px-3 bg-green-200 text-[14px] text-green-100 rounded-2xl">Active</p>
+            </div>
           </div>
-        ) : "Vehicles"}
+        ) : (
+          <div className="flex justify-between">
+            <span className='pl-[4px] text-[22px]'>
+              Vehicles
+            </span>
+            <button
+              className="flex flex-row text-grey-300 text-[12px] mr-2 gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center hover:bg-blue-100 hover:text-yellow-100"
+            >
+              Add
+              <RiAddLine className="w-[14px] h-[14px]"/>
+            </button>
+          </div>
+        )}
       </span>
       {isVehicleSelected ? (
-        <p className="text-gray-700">{vehicle?.plate_number}</p>
+        <div className="flex flex-col flex-1 overflow-y-auto">
+          <VehicleInfo vehicle={vehicle} vehicles={vehicles}/>
+        </div>
       ) : (
         <div className="flex-1 flex flex-col border rounded-xl p-4 overflow-hidden">
           <div className="flex-1 overflow-y-auto">

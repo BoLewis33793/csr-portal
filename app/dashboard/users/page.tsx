@@ -1,23 +1,24 @@
-import { getUsers } from "@/lib/db";
-import { User } from '@/lib/definitions';
+import { getUsersWithSearch } from "@/lib/db";
 
 import UsersNav from "@/components/navigation/users-nav";
 import UsersListNav from "@/components/user/users-list-nav";
 import UsersList from "@/components/user/users-list";
+import { User } from "@/lib/definitions";
 
-export default async function Page() {
-  // Simulating a fetch:
-  const data: Record<string, any>[] = await getUsers();
+interface PageProps {
+  searchParams?: { query?: string };
+}
 
-  // Fix: Cast or transform to User[]
-  const users: User[] = data as User[];
-  console.log('users: ', users);
+export default async function Page({ searchParams }: PageProps) {
+  const query = searchParams?.query || '';
 
-    return (
-      <div className="flex flex-col h-screen">
-        <UsersNav />
-        <UsersListNav />
-        <UsersList users={users}/>
-      </div>
-    );
-  }
+  const users = await getUsersWithSearch(query) as User[];
+
+  return (
+    <div className="flex flex-col h-screen">
+      <UsersNav />
+      <UsersListNav />
+      <UsersList users={users} />
+    </div>
+  );
+}

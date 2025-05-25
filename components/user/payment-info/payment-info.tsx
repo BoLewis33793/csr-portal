@@ -32,7 +32,7 @@ export default function PaymentInfo({ id }: { id: number }) {
   useEffect(() => {
     async function fetchPurchaseHistory() {
       try {
-        const res = await fetch(`/api/users/${id}/purchases`);
+        const res = await fetch(`/api/users/user/${id}/purchases`);
         const data = await res.json();
         setPurchaseHistory(data);
       } catch (error) {
@@ -48,7 +48,7 @@ export default function PaymentInfo({ id }: { id: number }) {
   useEffect(() => {
     async function fetchPaymentCards() {
       try {
-        const res = await fetch(`/api/users/${id}/payment-cards`);
+        const res = await fetch(`/api/users/user/${id}/payment-cards`);
         const data = await res.json();
         setCardList(data);
       } catch (error) {
@@ -75,24 +75,27 @@ export default function PaymentInfo({ id }: { id: number }) {
                 className='bg-yellow-100 mr-2 py-[3px] px-[5px] border border-grey-200 rounded shadow'>
                 <RiArrowLeftLongLine className='h-4 w-6 text-grey-300'/>
             </button>
-            <span className='pl-[4px] text-[22px]'>
+            <span className='pl-[4px] text-[18px]'>
               {card?.card_type + ' ' + `${card?.card_number.slice(-4)}`}
             </span>
           </div>
         )}
         {isPurchaseSelected && (
-          <div className="flex items-center text-[24px] text-black-100">
+          <div className="flex items-center text-black-100">
             <button 
                 onClick={() => {
                   setIsPurchaseSelected(false);
                   setShowPaymentInfo(true);
                 }}
-                className='bg-yellow-100 mr-2 py-[3px] px-[5px] border border-grey-200 rounded shadow'>
+                className='bg-yellow-100 mr-2 py-[3px] px-[5px] text-[24px] border border-grey-200 rounded shadow'>
                 <RiArrowLeftLongLine className='h-4 w-6 text-grey-300'/>
             </button>
-            <span className='pl-[4px] text-[22px]'>
+            <span className='pl-[4px] text-[18px]'>
               {purchase?.name}
             </span>
+            <div className="px-4 py-2">
+              <p className="py-[3px] px-3 bg-green-200 text-[14px] text-green-100 rounded-2xl">{purchase?.status}</p>
+            </div>
           </div>
         )}
       </span>

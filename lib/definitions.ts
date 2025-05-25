@@ -38,6 +38,13 @@ export type User = {
     payment_card_id: number;
     card_type: string;
     card_number: string;
+    card_expiration: string;
+    vehicle_id: number;
+    make: string;
+    model: string;
+    color: string;
+    year: number;
+    plate_number: string;
   }
 
   export type Vehicle = {
@@ -51,6 +58,7 @@ export type User = {
     subscription_id: number;
     subscription_name: string;
     subscription_status: string;
+    subscription_frequency: string;
   }
 
   export type Purchase = {
@@ -61,6 +69,6 @@ export type User = {
     date: string; // ISO string (or Date, depending on how it's returned from DB)
     payment_card_id: number | null;
     amount: number;
-    type: 'subscription' | 'wash' | 'coupon' | string; // allow fallback string type if dynamic
+    type: 'Subscription' | 'Wash' | 'Coupon' | string; // allow fallback string type if dynamic
   };
   

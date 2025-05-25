@@ -1,7 +1,9 @@
-import { RiArrowLeftLongLine, RiVisaFill } from "@remixicon/react";
+import { RiArrowLeftLongLine, RiVisaFill, RiAddLine } from "@remixicon/react";
 
 import { Subscription } from "@/lib/definitions";
 import { useState, useEffect } from "react";
+
+import SubscriptionInfo from "./subscription-info";
 
 export default function Subscriptions({ id }: { id: number }) {
   const status = [
@@ -23,7 +25,7 @@ export default function Subscriptions({ id }: { id: number }) {
   useEffect (() => {
     const fetchSubscriptions = async () => {
       try {
-        const res = await fetch(`/api/users/${id}/subscriptions`);
+        const res = await fetch(`/api/users/user/${id}/subscriptions`);
         const data = await res.json();
         console.log("Fetched subscriptions:", data);
         setSubscriptions(data);
@@ -47,14 +49,29 @@ export default function Subscriptions({ id }: { id: number }) {
                 className='bg-yellow-100 mr-2 py-[3px] px-[5px] border border-grey-200 rounded shadow'>
                 <RiArrowLeftLongLine className='h-4 w-6 text-grey-300'/>
             </button>
-            <span className='pl-[4px] text-[22px]'>
-              {subscription?.plan_type + ' / ' + subscription?.frequency}
+            <span className='pl-[4px] text-[18px]'>
+              {subscription?.plan_type}
             </span>
+            <div className="min-w-[50px] px-4 py-2">
+              <p className="py-[3px] px-3 bg-green-200 text-[14px] text-green-100 rounded-2xl">{subscription?.status}</p>
+            </div>
           </div>
-        ): "Subscriptions"}
+        ) : (
+          <div className="flex justify-between">
+            <span className='pl-[4px] text-[22px]'>
+              Subscriptions
+            </span>
+            <button
+              className="flex flex-row text-grey-300 text-[12px] mr-2 gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center hover:bg-blue-100 hover:text-yellow-100"
+            >
+              Add
+              <RiAddLine className="w-[14px] h-[14px]"/>
+            </button>
+          </div>
+        )}
       </span>
       {isSubscriptionSelected ? (
-        <p className="text-gray-700">{subscription?.plan_type}</p>
+        <SubscriptionInfo subscription={subscription}/>
       ) : (
         <div className="flex-1 flex flex-col border rounded-xl p-4 overflow-hidden">
           {/* scrollable table wrapper */}

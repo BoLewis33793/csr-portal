@@ -1,6 +1,7 @@
 'use server';
 
 import { neon } from '@neondatabase/serverless';
+import { User } from './definitions';
 const sql = neon(`${process.env.DATABASE_URL}`);
 
 export async function getUsers() {
@@ -67,7 +68,8 @@ export async function getUserVehiclesById(userId: string) {
     SELECT 
       v.*,
       s.plan_type AS subscription_name,
-      s.status AS subscription_status
+      s.status AS subscription_status,
+      s.frequency AS subscription_frequency
     FROM vehicles v
     LEFT JOIN subscriptions s 
       ON v.subscription_id = s.id
@@ -82,12 +84,38 @@ export async function getUserSubscriptionsById(userId: string) {
     SELECT 
       s.*,
       pc.card_type,
-      pc.card_number
+      pc.card_number,
+      pc.card_expiration,
+      v.id AS vehicle_id,
+      v.make,
+      v.model,
+      v.year,
+      v.color,
+      v.plate_number
     FROM subscriptions s
     LEFT JOIN payment_cards pc 
       ON s.payment_card_id = pc.id
+    LEFT JOIN vehicles v
+      ON v.subscription_id = s.id
     WHERE s.user_id = ${userId}
   `;
 
   return subscriptions;
+}
+
+export async function getUsersWithSearch(query?: string) {
+  if (query) {
+    const result = await sql`
+      SELECT * FROM users
+      WHERE 
+        first_name ILIKE ${'%' + query + '%'} OR
+        last_name ILIKE ${'%' + query + '%'} OR
+        email ILIKE ${'%' + query + '%'} OR
+        (first_name || ' ' || last_name) ILIKE ${'%' + query + '%'}
+    `;
+    return result;
+  }
+
+  const result = await sql`SELECT * FROM users`;
+  return result;
 }

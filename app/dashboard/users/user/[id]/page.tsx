@@ -20,7 +20,7 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await fetch(`/api/users/${id}`);
+        const res = await fetch(`/api/users/user/${id}`);
         const data = await res.json();
         setUser(data);
       } catch (error) {
@@ -57,7 +57,7 @@ export default function Page({ params }: { params: Promise<{ id: number }> }) {
             ))}
         </div>
         <div className="hidden desktop-large:block w-px mt-12 mb-10 bg-gray-200" />
-        <div className="flex-1 overflow-y-auto p-10 desktop-large:p-10">
+        <div className="flex-1 overflow-y-auto p-10">
           {selectedButton === "Customer Info" && <UserInfo user={user} />}
           {selectedButton === "Payment Info" && <PaymentInfo id={id} />}
           {selectedButton === "Subscriptions" && <Subscriptions id={id}/>}

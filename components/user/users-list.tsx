@@ -12,7 +12,7 @@ export default function UsersList({ users }: UsersListProps) {
   const router = useRouter();
 
   const handleClick = (id: number) => {
-    router.push(`/dashboard/users/${id}`);
+    router.push(`/dashboard/users/user/${id}`);
   };
 
   return (
