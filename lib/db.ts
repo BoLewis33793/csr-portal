@@ -105,17 +105,52 @@ export async function getUserSubscriptionsById(userId: string) {
 
 export async function getUsersWithSearch(query?: string) {
   if (query) {
-    const result = await sql`
-      SELECT * FROM users
+    return await sql`
+      SELECT 
+        u.*,
+        (
+          SELECT COUNT(*) 
+          FROM vehicles v 
+          WHERE v.user_id = u.id
+        ) AS vehicle_count,
+        (
+          SELECT COUNT(*) 
+          FROM subscriptions s 
+          WHERE s.user_id = u.id
+        ) AS subscription_count,
+        (
+          SELECT COUNT(*) 
+          FROM purchases p 
+          WHERE p.user_id = u.id
+        ) AS purchase_count
+      FROM users u
       WHERE 
-        first_name ILIKE ${'%' + query + '%'} OR
-        last_name ILIKE ${'%' + query + '%'} OR
-        email ILIKE ${'%' + query + '%'} OR
-        (first_name || ' ' || last_name) ILIKE ${'%' + query + '%'}
+        u.first_name ILIKE ${'%' + query + '%'} OR
+        u.last_name ILIKE ${'%' + query + '%'} OR
+        u.email ILIKE ${'%' + query + '%'} OR
+        (u.first_name || ' ' || u.last_name) ILIKE ${'%' + query + '%'}
     `;
-    return result;
   }
 
-  const result = await sql`SELECT * FROM users`;
-  return result;
+  return await sql`
+    SELECT 
+      u.*,
+      (
+        SELECT COUNT(*) 
+        FROM vehicles v 
+        WHERE v.user_id = u.id
+      ) AS vehicle_count,
+      (
+        SELECT COUNT(*) 
+        FROM subscriptions s 
+        WHERE s.user_id = u.id
+      ) AS subscription_count,
+      (
+        SELECT COUNT(*) 
+        FROM purchases p 
+        WHERE p.user_id = u.id
+      ) AS purchase_count
+    FROM users u
+  `;
 }
+
