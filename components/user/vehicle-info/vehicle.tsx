@@ -248,7 +248,7 @@ export default function VehicleInfo({
         </div>
       )}
       {showTransferModal && (
-        <div className="fixed inset-[-30] z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Overlay */}
           <div className="absolute inset-0 bg-black-100 bg-opacity-50" />
 
