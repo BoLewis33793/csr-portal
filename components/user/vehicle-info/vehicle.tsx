@@ -1,3 +1,4 @@
+import { Modal } from "@/components/modal";
 import { Subscription, Vehicle } from "@/lib/definitions";
 import { RiEdit2Line, RiSaveLine, RiVisaFill, RiCloseLine, RiArrowLeftRightLine, RiAddLine } from "@remixicon/react";
 import { use, useEffect, useState } from "react";
@@ -220,121 +221,110 @@ export default function VehicleInfo({
         </div>
       </div>
       {showRemoveModal && (
-        <div className="fixed inset-[-25] z-50 flex items-center justify-center">
-          {/* Background overlay */}
-          <div className="absolute inset-0 bg-black-100 bg-opacity-50"></div>
-
-          {/* Modal content */}
-          <div className="relative z-10 bg-white p-6 rounded-xl shadow-lg w-[90%] max-w-md">
-            <h2 className="text-lg font-semibold mb-4">Remove Subscription</h2>
-            <p className="text-sm text-gray-500 mb-6">
-              Are you sure you want to remove this subscription from the vehicle?
-            </p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={handleRemoveCancel}
-                className="px-4 py-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleRemoveConfirm}
-                className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600"
-              >
-                Confirm
-              </button>
-            </div>
+        <Modal>
+          <h2 className="text-lg font-semibold mb-4">Remove Subscription</h2>
+          <p className="text-sm text-gray-500 mb-6">
+            Are you sure you want to remove this subscription from the vehicle?
+          </p>
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={handleRemoveCancel}
+              className="px-4 py-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleRemoveConfirm}
+              className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600"
+            >
+              Confirm
+            </button>
           </div>
-        </div>
+        </Modal>
       )}
       {showTransferModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black-100 bg-opacity-50" />
+        <Modal>
+          <h2 className="text-lg font-semibold mb-4">Transfer Subscription</h2>
 
-          {/* Modal */}
-          <div className="relative z-10 bg-white p-6 rounded-xl shadow-lg w-[90%] max-w-md">
-            <h2 className="text-lg font-semibold mb-4">Transfer Subscription</h2>
+          {/* Dropdown */}
+          <label htmlFor="sub-select" className="block text-sm text-gray-600 mb-2">
+            Select the subscription to transfer <span className="text-red-500">*</span>
+          </label>
+          <select
+            id="sub-select"
+            value={selectedSubscription?.id || ''}
+            onChange={(e) =>
+              setSelectedSubscription(subscriptions.find((s) => s.id === Number(e.target.value)))
+            }
+            className="w-full border border-gray-300 rounded-md p-2 text-sm mb-6 focus:outline-none focus:ring-2 focus:ring-blue-100"
+          >
+            <option value="">-- choose a subscription --</option>
+            {subscriptions
+              .filter((s) => s.id !== vehicle?.subscription_id)
+              .map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.plan_type + ' ' + s.frequency}
+                </option>
+              ))}
+          </select>
 
-            {/* dropdown */}
-            <label htmlFor="sub-select" className="block text-sm text-gray-600 mb-2">
-              Select the subscription to transfer <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="sub-select"
-              value={selectedSubscription?.id || ''}
-              onChange={(e) =>
-                setSelectedSubscription(subscriptions.find((s) => s.id === Number(e.target.value)))
-              }
-              className="w-full border border-gray-300 rounded-md p-2 text-sm mb-6 focus:outline-none focus:ring-2 focus:ring-blue-100"
-            >
-              <option value="">-- choose a subscription --</option>
-              {subscriptions
-                .filter((s) => s.id !== vehicle?.subscription_id) // exclude the current vehicle
-                .map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.plan_type + ' ' + s.frequency}
-                  </option>
-                ))}
-            </select>
+          {selectedSubscription?.vehicle_id && (
+            <>
+              <label className="block text-sm text-gray-600 mb-2">
+                This subscription already has a vehicle. Would you like to swap it with the selected one?
+                <span className="text-red-500">*</span>
+              </label>
 
-            {selectedSubscription?.vehicle_id && (
-              <>
-                <label className="block text-sm text-gray-600 mb-2">
-                  This subscription already has a vehicle. Would you like to swap it with the selected one?
-                  <span className="text-red-500">*</span>
+              <div className="flex items-center space-x-6 mb-4">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="swap-subscription"
+                    value="yes"
+                    checked={swapChoice === 'yes'}
+                    onChange={() => setSwapChoice('yes')}
+                    className="form-radio text-blue-100"
+                  />
+                  <span className="text-sm text-gray-700">Yes</span>
                 </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="swap-subscription"
+                    value="no"
+                    checked={swapChoice === 'no'}
+                    onChange={() => setSwapChoice('no')}
+                    className="form-radio text-blue-100"
+                  />
+                  <span className="text-sm text-gray-700">No</span>
+                </label>
+              </div>
+            </>
+          )}
 
-                <div className="flex items-center space-x-6 mb-4">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      name="swap-subscription"
-                      value="yes"
-                      checked={swapChoice === 'yes'}
-                      onChange={() => setSwapChoice('yes')}
-                      className="form-radio text-blue-100"
-                    />
-                    <span className="text-sm text-gray-700">Yes</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      name="swap-subscription"
-                      value="no"
-                      checked={swapChoice === 'no'}
-                      onChange={() => setSwapChoice('no')}
-                      className="form-radio text-blue-100"
-                    />
-                    <span className="text-sm text-gray-700">No</span>
-                  </label>
-                </div>
-              </>
-            )}
-
-            {/* buttons */}
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={handleTransferCancel}
-                className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                }}
-                disabled={!selectedSubscription}
-                className={`px-4 py-2 rounded-md text-white ${
-                  selectedSubscription
-                    ? 'bg-blue-100 hover:bg-blue-600'
-                    : 'bg-blue-300 cursor-not-allowed'
-                }`}
-              >
-                Confirm
-              </button>
-            </div>
+          {/* Buttons */}
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={handleTransferCancel}
+              className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                // Your confirm logic here
+              }}
+              disabled={!selectedSubscription}
+              className={`px-4 py-2 rounded-md text-white ${
+                selectedSubscription
+                  ? 'bg-blue-100 hover:bg-blue-600'
+                  : 'bg-blue-300 cursor-not-allowed'
+              }`}
+            >
+              Confirm
+            </button>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
