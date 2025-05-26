@@ -2,7 +2,53 @@
 
 import { neon } from '@neondatabase/serverless';
 import { User } from './definitions';
+
+import type { z } from 'zod';
+import { personalInfoSchema, addressSchema } from 'lib/userSchema';
+
 const sql = neon(`${process.env.DATABASE_URL}`);
+
+type PersonalInfo = z.infer<typeof personalInfoSchema>;
+type AddressInfo = z.infer<typeof addressSchema>;
+
+type UpdateUserPersonalParams = {
+  userId: number;
+  personalInfo: PersonalInfo;
+};
+
+type UpdateUserParams = {
+  userId: number;
+  addressInfo: AddressInfo;
+};
+
+
+
+export async function updateUserPersonalInfo({ userId, personalInfo }: UpdateUserPersonalParams) {
+  await sql`
+    UPDATE users
+    SET 
+      first_name = ${personalInfo.first_name},
+      last_name = ${personalInfo.last_name},
+      email = ${personalInfo.email},
+      phone_number = ${personalInfo.phone_number},
+      date_of_birth = ${personalInfo.date_of_birth},
+      gender = ${personalInfo.gender}
+    WHERE id = ${userId}
+  `;
+}
+
+export async function updateUserAddressInfo({ userId, addressInfo }: UpdateUserParams) {
+  await sql`
+    UPDATE users
+    SET
+      street_address = ${addressInfo.street_address},
+      city = ${addressInfo.city},
+      state = ${addressInfo.state},
+      postal_code = ${addressInfo.postal_code},
+      country = ${addressInfo.country}
+    WHERE id = ${userId}
+  `;
+}
 
 export async function getUsers() {
   const users = await sql`

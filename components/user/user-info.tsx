@@ -1,22 +1,23 @@
 'use client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { UserField } from 'lib/definitions';
-import { useState } from 'react';
+import { User, UserField } from 'lib/definitions';
+import { useEffect, useState } from 'react';
 import { RiEdit2Line, RiSaveLine } from "@remixicon/react";
 import { personalInfoSchema, addressSchema } from "lib/userSchema";
 import type { z } from "zod";
 
-type UserInfoProps = {
-  user: UserField;
-};
-
 type PersonalInfo = z.infer<typeof personalInfoSchema>;
 type AddressInfo = z.infer<typeof addressSchema>;
 
-export default function UserInfo({ user }: UserInfoProps) {
+export default function UserInfo({
+  userInfo,
+}: {
+  userInfo: User | undefined;
+}) {
   const [isEditingPersonalInfo, setIsEditingPersonalInfo] = useState(false);
   const [isEditingAddressInfo, setIsEditingAddressInfo] = useState(false);
+  const [user, setUser] = useState<User | undefined>(undefined);
 
   const {
     register: registerPersonal,
@@ -26,12 +27,12 @@ export default function UserInfo({ user }: UserInfoProps) {
   } = useForm<PersonalInfo>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email,
-      phone_number: user.phone_number,
-      date_of_birth: user.date_of_birth,
-      gender: user.gender,
+      first_name: user?.first_name,
+      last_name: user?.last_name,
+      email: user?.email,
+      phone_number: user?.phone_number,
+      date_of_birth: user?.date_of_birth,
+      gender: user?.gender,
     },
   });
 
@@ -43,27 +44,110 @@ export default function UserInfo({ user }: UserInfoProps) {
   } = useForm<AddressInfo>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      street_address: user.street_address,
-      city: user.city,
-      state: user.state,
-      postal_code: user.postal_code,
-      country: user.country,
+      street_address: user?.street_address,
+      city: user?.city,
+      state: user?.state,
+      postal_code: user?.postal_code,
+      country: user?.country,
     },
   });
 
-  const onSubmitPersonal = (data: PersonalInfo) => {
-    console.log("Valid Personal Info", data);
-    setIsEditingPersonalInfo(false);
+  const onSubmitPersonal = async (data: PersonalInfo) => {
+    console.log('personal info: ', data);
+    try {
+      const res = await fetch(`/api/users/user/${user?.id}/personal-info/update`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('Failed to update personal info:', errorData.message || res.statusText);
+      } else {
+        console.log('Personal info updated successfully');
+        setIsEditingPersonalInfo(false);
+      }
+    } catch (error) {
+      console.error('Network error while updating personal info:', error);
+    } finally {
+      fetchUser();
+    }
   };
-
-  const onSubmitAddress = (data: AddressInfo) => {
-    console.log("Valid Address Info", data);
-    setIsEditingAddressInfo(false);
+  
+  const onSubmitAddress = async (data: AddressInfo) => {
+    try {
+      const res = await fetch(`/api/users/user/${user?.id}/address/update`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('Failed to update address info:', errorData.message || res.statusText);
+      } else {
+        console.log('Address info updated successfully');
+        setIsEditingAddressInfo(false);
+      }
+    } catch (error) {
+      console.error('Network error while updating address info:', error);
+    }
   };
+  
 
   const onError = (errors: any) => {
     console.error("Validation errors:", errors);
   };
+
+  async function fetchUser() {
+    try {
+      const res = await fetch(`/api/users/user/${userInfo?.id}`);
+      const data = await res.json();
+      setUser(data);
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+    }
+  }
+
+  useEffect(() => {
+    async function fetchAndSetUser() {
+      if (!userInfo?.id) return;
+  
+      try {
+        const res = await fetch(`/api/users/user/${userInfo.id}`);
+        const data = await res.json();
+        setUser(data);
+  
+        // Reset form values with fresh data
+        resetPersonal({
+          first_name: data.first_name,
+          last_name: data.last_name,
+          email: data.email,
+          phone_number: data.phone_number,
+          date_of_birth: data.date_of_birth,
+          gender: data.gender,
+        });
+  
+        resetAddress({
+          street_address: data.street_address,
+          city: data.city,
+          state: data.state,
+          postal_code: data.postal_code,
+          country: data.country,
+        });
+  
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    }
+  
+    fetchAndSetUser();
+  }, [userInfo?.id]);  
 
   return (
     <div className="flex flex-col h-full space-y-3">
@@ -96,16 +180,16 @@ export default function UserInfo({ user }: UserInfoProps) {
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-y-6 gap-x-6">
+          <div className={`grid grid-cols-2 gap-y-6 gap-x-6`}>
             {[
               { label: 'First Name', name: 'first_name' },
               { label: 'Last Name', name: 'last_name' },
-              { label: 'Email Address', name: 'email' },
+              { label: 'Email Address', name: 'email', colSpan: 'col-span-2 md:col-span-1' },
               { label: 'Phone Number', name: 'phone_number' },
               { label: 'Date of Birth', name: 'date_of_birth', type: 'date' },
               { label: 'Gender', name: 'gender' },
-            ].map(({ label, name, type = 'text' }) => (
-              <div key={name}>
+            ].map(({ label, name, type = 'text', colSpan }) => (
+              <div key={name} className={colSpan}>
                 <label className="text-[14px] text-grey-300">{label}</label>
                 {isEditingPersonalInfo ? (
                   <input
@@ -116,8 +200,8 @@ export default function UserInfo({ user }: UserInfoProps) {
                 ) : (
                   <p className="pt-1">
                     {name === 'date_of_birth'
-                      ? new Date(user[name as keyof UserField] as string).toLocaleDateString('en-US')
-                      : user[name as keyof UserField]}
+                      ? new Date(user?.[name as keyof UserField] as string).toLocaleDateString('en-US')
+                      : user?.[name as keyof UserField]}
                   </p>
                 )}
                 {personalErrors[name as keyof PersonalInfo] && (
@@ -173,7 +257,7 @@ export default function UserInfo({ user }: UserInfoProps) {
                     className="border rounded px-2 py-1 w-full"
                   />
                 ) : (
-                  <p className="pt-1">{user[name as keyof UserField]}</p>
+                  <p className="pt-1">{user?.[name as keyof UserField]}</p>
                 )}
                 {addressErrors[name as keyof AddressInfo] && (
                   <p className="text-red-500 text-sm">

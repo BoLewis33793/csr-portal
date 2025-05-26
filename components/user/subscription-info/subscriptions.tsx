@@ -113,7 +113,15 @@ export default function Subscriptions({ id }: { id: number }) {
               {subscription?.plan_type}
             </span>
             <div className="min-w-[50px] px-4 py-2">
-              <p className="py-[3px] px-3 bg-green-200 text-[14px] text-green-100 rounded-2xl">{subscription?.status}</p>
+              <p
+                className={`py-[3px] px-3 text-[14px] rounded-2xl ${
+                  subscription?.status?.toLowerCase() === "active"
+                    ? "bg-green-200 text-green-800"
+                    : "bg-red-300 text-red-800"
+                }`}
+              >
+                {subscription?.status ?? "Unknown"}
+              </p>
             </div>
           </div>
         ) : (
@@ -159,7 +167,15 @@ export default function Subscriptions({ id }: { id: number }) {
                     >
                       <td className="min-w-[160px] px-4 py-2 first:rounded-l-2xl">{subscription.plan_type}</td>
                       <td className="min-w-[100px] px-4 py-2">
-                        <p className="inline-block py-[3px] px-3 bg-green-200 text-green-100 rounded-2xl">{subscription.status}</p>
+                        <p
+                          className={`inline-block py-[3px] px-3 rounded-2xl ${
+                            subscription?.status?.toLowerCase() === "active"
+                              ? "bg-green-200 text-green-800"
+                              : "bg-red-300 text-red-800"
+                          }`}
+                        >
+                          {subscription?.status ?? "None"}
+                        </p>
                       </td>
                       <td className="min-w-[120px] px-4 py-2">{subscription.frequency}</td>
                       <td className="min-w-[120px] px-4 py-2">

@@ -248,11 +248,23 @@ export default function SubscriptionInfo({ subscriptionInfo }: { subscriptionInf
           <span className="text-black-100 font-semibold">Subscription Information</span>
           <div className="flex flex-row space-x-2">
             <button
-            onClick={handleCancelClick}
-              className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 hover:text-red-100 hover:border-red-100 rounded-2xl items-center"
+              onClick={handleCancelClick}
+              className={`flex flex-row text-[12px] gap-1 py-1 px-2 border rounded-2xl items-center
+                ${
+                  subscription?.status?.toLowerCase() === "active"
+                    ? "text-grey-300 border-grey-200 hover:text-red-100 hover:border-red-100"
+                    : "text-grey-300 border-grey-200 hover:text-green-100 hover:border-green-100"
+                }
+              `}
             >
-              <p className="hidden desktop-large:block">Cancel</p>
-              <RiCloseLine className="w-[14px] h-[14px]"/>
+              <p className="hidden desktop-large:block">
+                {subscription?.status?.toLowerCase() === "active" ? "Cancel" : "Activate"}
+              </p>
+              {subscription?.status?.toLowerCase() === "active" ? (
+                <RiCloseLine className="w-[14px] h-[14px]" />
+              ) : (
+                <RiAddLine className="w-[14px] h-[14px]" />
+              )}
             </button>
           </div>
         </div>
