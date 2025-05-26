@@ -6,13 +6,13 @@ import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 export default function VehicleInfo({
-  vehicle,
+  vehicleInfo,
   vehicles,
 }: {
-  vehicle: Vehicle | undefined;
+  vehicleInfo: Vehicle | undefined;
   vehicles: Vehicle[];
 }) {
-  const router = useRouter();
+  const [vehicle, setVehicle] = useState<Vehicle | undefined>(undefined);
   
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
@@ -23,6 +23,8 @@ export default function VehicleInfo({
   const [selectedFrequency, setSelectedFrequency] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [cardList, setCardList] = useState<Payment_Card[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [isEditingVehiclesInfo, setIsEditingVehicleInfo] = useState(false);
 
   const handleRemoveClick = () => {
     setShowRemoveModal(true);
@@ -51,7 +53,7 @@ export default function VehicleInfo({
     } catch (error) {
       console.error('Error:', error);
     }
-
+    fetchVehicle();
     setShowRemoveModal(false);
   };
   
@@ -101,6 +103,7 @@ export default function VehicleInfo({
     } catch (error) {
       console.error('Transfer error:', error);
     } finally {
+      fetchVehicle();
       setSelectedSubscription(undefined);
       setSwapChoice('');
       setShowTransferModal(false);
@@ -126,17 +129,30 @@ export default function VehicleInfo({
     setShowAddModal(false);
   };
 
-  const [isEditingVehiclesInfo, setIsEditingVehicleInfo] = useState(false);
   const toggleEditPersonalInfo = () => setIsEditingVehicleInfo(prev => !prev);
 
   const handleChange = () => {};
 
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const fetchVehicle = async () => {
+    try {
+      const res = await fetch(`/api/users/user/${vehicleInfo?.user_id}/vehicles/${vehicleInfo?.id}`);
+      const data = await res.json();
+      console.log("Fetched vehicle:", data);
+      setVehicle(data);
+    } catch (error) {
+      console.error("Failed to fetch vehicles: ", error);
+    }
+  };
+
+  useEffect (() => {
+    if (!vehicleInfo?.id || !vehicleInfo?.user_id) return;
+    fetchVehicle();
+  }, [vehicleInfo]);
 
   useEffect (() => {
     const fetchSubscriptions = async () => {
       try {
-        const res = await fetch(`/api/users/user/${vehicle?.user_id}/subscriptions`);
+        const res = await fetch(`/api/users/user/${vehicleInfo?.user_id}/subscriptions`);
         const data = await res.json();
         console.log("Fetched subscriptions:", data);
         setSubscriptions(data);
@@ -146,12 +162,12 @@ export default function VehicleInfo({
     };
 
     fetchSubscriptions();
-  }, [vehicle?.user_id]);
+  }, [vehicleInfo]);
 
   useEffect(() => {
     async function fetchPaymentCards() {
       try {
-        const res = await fetch(`/api/users/user/${vehicle?.user_id}/payment-cards`);
+        const res = await fetch(`/api/users/user/${vehicleInfo?.user_id}/payment-cards`);
         const data = await res.json();
         setCardList(data);
       } catch (error) {
@@ -160,7 +176,7 @@ export default function VehicleInfo({
     }
 
     fetchPaymentCards();
-  }, [vehicle?.user_id]);
+  }, [vehicleInfo]);
 
   const vehicle_labels = [
     { label: "Make", value: vehicle?.make },

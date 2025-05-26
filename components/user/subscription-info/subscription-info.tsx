@@ -4,7 +4,9 @@ import { Payment_Card, Subscription, Vehicle } from "@/lib/definitions";
 import { RiEdit2Line, RiSaveLine, RiVisaFill, RiCloseLine, RiArrowLeftRightLine, RiAddLine } from "@remixicon/react";
 import { use, useEffect, useState } from "react";
 
-export default function SubscriptionInfo({ subscription }: { subscription: Subscription | undefined}) {
+export default function SubscriptionInfo({ subscriptionInfo }: { subscriptionInfo: Subscription | undefined}) {
+  const [subscription, setSubscription] = useState<Subscription | undefined>(undefined);
+
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -62,7 +64,7 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
     } catch (error) {
       console.error('Error:', error);
     }
-
+    fetchSubscription();
     setShowRemoveModal(false);
   };
 
@@ -86,7 +88,7 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
       currentVehicleId: subscription?.vehicle_id,
       currentSubscriptionId: subscription?.id,
       newVehicleId: selectedVehicle?.id,
-      newVehicleSubscriptionId: selectedVehicle?.user_id,
+      newVehicleSubscriptionId: selectedVehicle?.subscription_id,
       swapChoice: swapChoice,
     };
   
@@ -111,6 +113,7 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
     } catch (error) {
       console.error('Transfer error:', error);
     } finally {
+      fetchSubscription();
       setSelectedVehicle(undefined);
       setSwapChoice('');
       setShowTransferModal(false);
@@ -153,10 +156,28 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
     setShowAddVehicleModal(false);
   };
 
+  async function fetchSubscription() {
+    try {
+      const res = await fetch(`/api/users/user/${subscriptionInfo?.user_id}/subscriptions/${subscriptionInfo?.id}`);
+      const data = await res.json();
+      console.log('data: ', data);
+      setSubscription(data);
+    } catch (error) {
+      console.error("Failed to fetch Subscription:", error);
+    }
+  }
+
+  useEffect(() => {
+    if (!subscriptionInfo?.id || !subscriptionInfo?.user_id) return;
+    fetchSubscription();
+  }, [subscriptionInfo?.id]);
+
   useEffect (() => {
+    if (!subscriptionInfo?.id || !subscriptionInfo?.user_id) return;
+
     const fetchSubscriptions = async () => {
       try {
-        const res = await fetch(`/api/users/user/${subscription?.user_id}/vehicles`);
+        const res = await fetch(`/api/users/user/${subscriptionInfo?.user_id}/vehicles`);
         const data = await res.json();
         console.log("Fetched subscriptions:", data);
         setVehicles(data);
@@ -164,14 +185,15 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
         console.error("Failed to fetch vehicles: ", error);
       }
     };
-
     fetchSubscriptions();
-  }, [subscription?.user_id]);
+  }, [subscriptionInfo?.user_id]);
 
   useEffect (() => {
+    if (!subscriptionInfo?.id || !subscriptionInfo?.user_id) return;
+
     const fetchSubscriptions = async () => {
       try {
-        const res = await fetch(`/api/users/user/${subscription?.user_id}/subscriptions`);
+        const res = await fetch(`/api/users/user/${subscriptionInfo?.user_id}/subscriptions`);
         const data = await res.json();
         console.log("Fetched subscriptions:", data);
         setSubscriptions(data);
@@ -181,7 +203,7 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
     };
 
     fetchSubscriptions();
-  }, [subscription?.user_id]);
+  }, [subscriptionInfo?.user_id]);
 
   const subscription_info_labels = [
     { label: "Plan", value: subscription?.plan_type },

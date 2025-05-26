@@ -56,10 +56,22 @@ export async function getUserPaymentHistoryById(userId: string) {
   return result;
 }
 
-export async function getVehicleById(id: string) {
-  const result = await sql`SELECT * FROM vehicles WHERE id = ${id}`;
-  return result[0]; // Return the first (and only) user found
+export async function getVehicleById(vehicleId: string) {
+  const vehicle = await sql`
+    SELECT 
+      v.*,
+      s.plan_type AS subscription_name,
+      s.status AS subscription_status,
+      s.frequency AS subscription_frequency
+    FROM vehicles v
+    LEFT JOIN subscriptions s 
+      ON v.subscription_id = s.id
+    WHERE v.id = ${vehicleId}
+  `;
+
+  return vehicle[0];
 }
+
 
 export async function getUserVehiclesById(userId: string) {
   const vehicles = await sql`
@@ -75,6 +87,30 @@ export async function getUserVehiclesById(userId: string) {
   `;
 
   return vehicles;
+}
+
+export async function getSubscriptionById(subscriptionId: string) {
+  const subscription = await sql`
+    SELECT 
+      s.*,
+      pc.card_type,
+      pc.card_number,
+      pc.card_expiration,
+      v.id AS vehicle_id,
+      v.make,
+      v.model,
+      v.year,
+      v.color,
+      v.plate_number
+    FROM subscriptions s
+    LEFT JOIN payment_cards pc 
+      ON s.payment_card_id = pc.id
+    LEFT JOIN vehicles v
+      ON v.subscription_id = s.id
+    WHERE s.id = ${subscriptionId}
+  `;
+
+  return subscription[0];
 }
 
 export async function getUserSubscriptionsById(userId: string) {

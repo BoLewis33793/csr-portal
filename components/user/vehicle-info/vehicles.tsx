@@ -154,7 +154,7 @@ export default function Vehicles({ id }: { id: number }) {
       </span>
       {isVehicleSelected ? (
         <div className="flex flex-col flex-1 overflow-y-auto">
-          <VehicleInfo vehicle={vehicle} vehicles={vehicles}/>
+          <VehicleInfo vehicleInfo={vehicle} vehicles={vehicles}/>
         </div>
       ) : (
         <div className="flex-1 flex flex-col border rounded-xl p-4 overflow-hidden">

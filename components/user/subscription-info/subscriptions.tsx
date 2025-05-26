@@ -132,7 +132,7 @@ export default function Subscriptions({ id }: { id: number }) {
         )}
       </span>
       {isSubscriptionSelected ? (
-        <SubscriptionInfo subscription={subscription}/>
+        <SubscriptionInfo subscriptionInfo={subscription}/>
       ) : (
         <div className="flex-1 flex flex-col border rounded-xl p-4 overflow-hidden">
           {/* scrollable table wrapper */}
