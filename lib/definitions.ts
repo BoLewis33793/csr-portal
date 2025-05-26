@@ -18,6 +18,25 @@ export type User = {
     purchase_count: number;
   };
 
+  export type UserField = {
+    id: number;
+    first_name: string;
+    last_name: string;
+    phone_number: string;
+    email: string;
+    date_of_birth: string;
+    gender: string;
+    last_wash: string;
+    street_address: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country: string;
+    subscription_count: number;
+    vehicle_count: number;
+    purchase_count: number;
+  };
+
   export type Payment_Card = {
     id: number;
     user_id: number;

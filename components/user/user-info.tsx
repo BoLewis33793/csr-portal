@@ -1,134 +1,189 @@
 'use client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { UserField } from 'lib/definitions';
+import { useState } from 'react';
 import { RiEdit2Line, RiSaveLine } from "@remixicon/react";
-import { User } from 'lib/definitions';
-import { useState } from "react";
+import { personalInfoSchema, addressSchema } from "lib/userSchema";
+import type { z } from "zod";
 
 type UserInfoProps = {
-  user: User;
+  user: UserField;
 };
+
+type PersonalInfo = z.infer<typeof personalInfoSchema>;
+type AddressInfo = z.infer<typeof addressSchema>;
 
 export default function UserInfo({ user }: UserInfoProps) {
   const [isEditingPersonalInfo, setIsEditingPersonalInfo] = useState(false);
-  const toggleEditPersonalInfo = () => setIsEditingPersonalInfo(prev => !prev);
-
   const [isEditingAddressInfo, setIsEditingAddressInfo] = useState(false);
-  const toggleEditAddressInfo = () => setIsEditingAddressInfo(prev => !prev);
 
-  const handleChange = () => {};
+  const {
+    register: registerPersonal,
+    handleSubmit: handleSubmitPersonal,
+    formState: { errors: personalErrors },
+    reset: resetPersonal,
+  } = useForm<PersonalInfo>({
+    resolver: zodResolver(personalInfoSchema),
+    defaultValues: {
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      phone_number: user.phone_number,
+      date_of_birth: user.date_of_birth,
+      gender: user.gender,
+    },
+  });
 
-  const personal_info_labels = [
-    { label: "First Name", value: user.first_name },
-    { label: "Last Name", value: user.last_name },
-    { label: "Email Address", value: user.email },
-    { label: "Phone Number", value: user.phone_number },
-    { label: "Date of Birth", value: user.date_of_birth },
-    { label: "Gender", value: user.gender }
-  ];
+  const {
+    register: registerAddress,
+    handleSubmit: handleSubmitAddress,
+    formState: { errors: addressErrors },
+    reset: resetAddress,
+  } = useForm<AddressInfo>({
+    resolver: zodResolver(addressSchema),
+    defaultValues: {
+      street_address: user.street_address,
+      city: user.city,
+      state: user.state,
+      postal_code: user.postal_code,
+      country: user.country,
+    },
+  });
 
-  const address_labels = [
-    { label: "Street Address", value: user.street_address },
-    { label: "City", value: user.city },
-    { label: "State", value: user.state },
-    { label: "Postal Code", value: user.postal_code },
-    { label: "Country", value: user.country },
-  ];
+  const onSubmitPersonal = (data: PersonalInfo) => {
+    console.log("Valid Personal Info", data);
+    setIsEditingPersonalInfo(false);
+  };
+
+  const onSubmitAddress = (data: AddressInfo) => {
+    console.log("Valid Address Info", data);
+    setIsEditingAddressInfo(false);
+  };
+
+  const onError = (errors: any) => {
+    console.error("Validation errors:", errors);
+  };
 
   return (
     <div className="flex flex-col h-full space-y-3">
       <span className="font-semibold text-black-100 text-[20px]">Customer Info</span>
       <div className="flex-1 flex flex-col space-y-6">
-        <div className="flex flex-col flex-1 border rounded-xl p-6 space-y-2">
+        {/* Personal Info */}
+        <form onSubmit={handleSubmitPersonal(onSubmitPersonal, onError)} className="flex flex-col flex-1 border rounded-xl p-6 space-y-2">
           <div className="flex justify-between pb-2">
             <span className="text-black-100 font-semibold">Personal Information</span>
             <div className="flex flex-row space-x-2">
-              {isEditingPersonalInfo && 
-                <button 
-                  onClick={toggleEditPersonalInfo}
+              {isEditingPersonalInfo && (
+                <button
+                  type="submit"
                   className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
                 >
                   Save
-                  <RiSaveLine className="w-[16px] h-[16px]"/>
+                  <RiSaveLine className="w-[16px] h-[16px]" />
                 </button>
-              }
-              <button 
-                onClick={toggleEditPersonalInfo}
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditingPersonalInfo(prev => !prev);
+                  resetPersonal();
+                }}
                 className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
               >
-
                 {isEditingPersonalInfo ? 'Cancel' : 'Edit'}
-                <RiEdit2Line className="w-[16px] h-[16px]"/>
+                <RiEdit2Line className="w-[16px] h-[16px]" />
               </button>
             </div>
           </div>
-          <div className="flex-1 grid grid-cols-2 grid-rows-3 gap-y-6 gap-x-6">
-            {personal_info_labels.map(({ label, value }) => (
-              <div key={label}>
-                <p className="text-[14px] text-grey-300">{label}</p>
+          <div className="grid grid-cols-2 gap-y-6 gap-x-6">
+            {[
+              { label: 'First Name', name: 'first_name' },
+              { label: 'Last Name', name: 'last_name' },
+              { label: 'Email Address', name: 'email' },
+              { label: 'Phone Number', name: 'phone_number' },
+              { label: 'Date of Birth', name: 'date_of_birth', type: 'date' },
+              { label: 'Gender', name: 'gender' },
+            ].map(({ label, name, type = 'text' }) => (
+              <div key={name}>
+                <label className="text-[14px] text-grey-300">{label}</label>
                 {isEditingPersonalInfo ? (
                   <input
-                    defaultValue={value}
-                    onChange={handleChange}
+                    type={type}
+                    {...registerPersonal(name as keyof PersonalInfo)}
                     className="border rounded px-2 py-1 w-full"
                   />
                 ) : (
                   <p className="pt-1">
-                    {label === "Date of Birth"
-                      ? new Date(value).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit',
-                        })
-                      : value}
+                    {name === 'date_of_birth'
+                      ? new Date(user[name as keyof UserField] as string).toLocaleDateString('en-US')
+                      : user[name as keyof UserField]}
+                  </p>
+                )}
+                {personalErrors[name as keyof PersonalInfo] && (
+                  <p className="text-red-500 text-sm">
+                    {personalErrors[name as keyof PersonalInfo]?.message as string}
                   </p>
                 )}
               </div>
             ))}
           </div>
-        <div>
-      </div>
-        </div>
-        <div className="flex flex-col flex-1 border rounded-xl p-6 space-y-2">
+        </form>
+
+        {/* Address Info */}
+        <form onSubmit={handleSubmitAddress(onSubmitAddress, onError)} className="flex flex-col flex-1 border rounded-xl p-6 space-y-2">
           <div className="flex justify-between pb-2">
             <span className="text-black-100 font-semibold">Address</span>
             <div className="flex flex-row space-x-2">
-              {isEditingAddressInfo && 
-                <button 
-                  onClick={toggleEditAddressInfo}
+              {isEditingAddressInfo && (
+                <button
+                  type="submit"
                   className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
                 >
                   Save
-                  <RiSaveLine className="w-[16px] h-[16px]"/>
+                  <RiSaveLine className="w-[16px] h-[16px]" />
                 </button>
-              }
-              <button 
-                onClick={toggleEditAddressInfo}
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditingAddressInfo(prev => !prev);
+                  resetAddress();
+                }}
                 className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
               >
-
                 {isEditingAddressInfo ? 'Cancel' : 'Edit'}
-                <RiEdit2Line className="w-[16px] h-[16px]"/>
+                <RiEdit2Line className="w-[16px] h-[16px]" />
               </button>
             </div>
           </div>
-          <div className="flex-1 grid grid-cols-2 grid-rows-3 gap-y-6 gap-x-6">
-            {address_labels.map(({ label, value }) => (
-                <div key={label}>
-                  <p className="text-[14px] text-grey-300">{label}</p>
-                  {isEditingAddressInfo ? (
-                    <input
-                      defaultValue={value}
-                      onChange={handleChange}
-                      className="border rounded px-2 py-1 w-full"
-                    />
-                  ) : (
-                    <p className="pt-1">
-                      {value}
-                    </p>
-                  )}
-                </div>
-              ))}
+          <div className="grid grid-cols-2 gap-y-6 gap-x-6">
+            {[
+              { label: 'Street Address', name: 'street_address' },
+              { label: 'City', name: 'city' },
+              { label: 'State', name: 'state' },
+              { label: 'Postal Code', name: 'postal_code' },
+              { label: 'Country', name: 'country' },
+            ].map(({ label, name }) => (
+              <div key={name}>
+                <label className="text-[14px] text-grey-300">{label}</label>
+                {isEditingAddressInfo ? (
+                  <input
+                    {...registerAddress(name as keyof AddressInfo)}
+                    className="border rounded px-2 py-1 w-full"
+                  />
+                ) : (
+                  <p className="pt-1">{user[name as keyof UserField]}</p>
+                )}
+                {addressErrors[name as keyof AddressInfo] && (
+                  <p className="text-red-500 text-sm">
+                    {addressErrors[name as keyof AddressInfo]?.message as string}
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
