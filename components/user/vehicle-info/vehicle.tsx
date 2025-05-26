@@ -24,7 +24,6 @@ export default function VehicleInfo({
   };
 
   const handleRemoveConfirm = () => {
-    // TODO: Handle the removal logic here (e.g., call an API or update state)
     console.log("Vehicle removed");
     setShowRemoveModal(false);
   };
@@ -39,9 +38,22 @@ export default function VehicleInfo({
     setSwapChoice('');
   };
 
-  const handleTransferConfirm = (id: string) => {
-    // TODO: Handle the removal logic here (e.g., call an API or update state)
-    console.log("Vehicle removed");
+  const handleTransferConfirm = () => {
+    if (!selectedSubscription) return;
+  
+    // Do your transfer logic here
+    const transferData = {
+      currentSubscription: vehicle?.subscription_id,
+      newSubscription: selectedSubscription.id,
+      swap: swapChoice,
+    };
+  
+    console.log('Transferring:', transferData);
+    // Make your API call or state update here
+  
+    // Reset state after confirming
+    setSelectedSubscription(undefined);
+    setSwapChoice('');
     setShowTransferModal(false);
   };
 
@@ -311,9 +323,7 @@ export default function VehicleInfo({
               Cancel
             </button>
             <button
-              onClick={() => {
-                // Your confirm logic here
-              }}
+              onClick={handleTransferConfirm}
               disabled={!selectedSubscription}
               className={`px-4 py-2 rounded-md text-white ${
                 selectedSubscription

@@ -6,9 +6,23 @@ import { use, useEffect, useState } from "react";
 export default function SubscriptionInfo({ subscription }: { subscription: Subscription | undefined}) {
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | undefined>(undefined);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [swapChoice, setSwapChoice] = useState<string>('');
+
+  const handleCancelClick = () => {
+    setShowCancelModal(true);
+  };
+
+  const handleCancelCancel = () => {
+    setShowCancelModal(false);
+  };
+
+  const handleCancelConfirm = () => {
+    console.log("Subscription Cancelled!");
+    setShowCancelModal(false);
+  };
 
   const handleRemoveClick = () => {
     setShowRemoveModal(true);
@@ -19,7 +33,6 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
   };
 
   const handleRemoveConfirm = () => {
-    // TODO: Handle the removal logic here (e.g., call an API or update state)
     console.log("Vehicle removed");
     setShowRemoveModal(false);
   };
@@ -34,11 +47,25 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
     setSwapChoice('');
   };
 
-  const handleTransferConfirm = (id: string) => {
-    // TODO: Handle the removal logic here (e.g., call an API or update state)
-    console.log("Vehicle removed");
+  const handleTransferConfirm = () => {
+    if (!selectedVehicle) return;
+  
+    // Do your transfer logic here
+    const transferData = {
+      currentVehicle: subscription?.vehicle_id,
+      toVehicle: selectedVehicle,
+      swap: swapChoice,
+    };
+  
+    console.log('Transferring:', transferData);
+    // Make your API call or state update here
+  
+    // Reset state after confirming
+    setSelectedVehicle(undefined);
+    setSwapChoice('');
     setShowTransferModal(false);
   };
+  
 
   useEffect (() => {
     const fetchSubscriptions = async () => {
@@ -98,6 +125,7 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
           <span className="text-black-100 font-semibold">Subscription Information</span>
           <div className="flex flex-row space-x-2">
             <button
+            onClick={handleCancelClick}
               className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
             >
               <p className="hidden desktop-large:block">Cancel</p>
@@ -173,6 +201,28 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
               )}
         </div>
       </div>
+      {showCancelModal && (
+        <Modal>
+          <h2 className="text-lg font-semibold mb-4">Cancel Subscription</h2>
+          <p className="text-sm text-gray-500 mb-6">
+            Are you sure you want to cancel this subscription?
+          </p>
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={handleCancelCancel}
+              className="px-4 py-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCancelConfirm}
+              className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600"
+            >
+              Confirm
+            </button>
+          </div>
+        </Modal>
+      )}
       {showRemoveModal && (
         <Modal>
           <h2 className="text-lg font-semibold mb-4">Remove Vehicle</h2>
@@ -264,9 +314,7 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
               Cancel
             </button>
             <button
-              onClick={() => {
-                // Transfer logic here
-              }}
+              onClick={handleTransferConfirm}
               disabled={!selectedVehicle}
               className={`px-4 py-2 rounded-md text-white ${
                 selectedVehicle
