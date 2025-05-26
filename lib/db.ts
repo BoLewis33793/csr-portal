@@ -159,3 +159,122 @@ export async function removeSubscriptionFromVehicle(vehicleId: string) {
     WHERE id = ${vehicleId}
   `;
 }
+
+export async function transferOneSubscriptionNoVehicle(
+  currentSubscriptionId: string,
+  newVehicleId: string
+) {
+  // Assign subscription to new vehicle
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = ${currentSubscriptionId}
+    WHERE id = ${newVehicleId}
+  `;
+}
+export async function transferOneSubscription(
+  currentVehicleId: string,
+  currentSubscriptionId: string,
+  newVehicleId: string
+) {
+  // Assign subscription to new vehicle
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = NULL
+    WHERE id = ${currentVehicleId}
+  `;
+
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = ${currentSubscriptionId}
+    WHERE id = ${newVehicleId}
+  `;
+}
+
+export async function transferTwoSubscriptions(
+  currentVehicleId: string,
+  currentSubscriptionId: string,
+  newVehicleId: string,
+  newVehicleSubscriptionId: string
+) {
+  // Temporarily remove both to prevent unique constraint conflicts
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = NULL
+    WHERE id IN (${currentVehicleId}, ${newVehicleId})
+  `;
+
+  // Swap the subscriptions
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = ${newVehicleSubscriptionId}
+    WHERE id = ${currentVehicleId}
+  `;
+
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = ${currentSubscriptionId}
+    WHERE id = ${newVehicleId}
+  `;
+}
+
+export async function transferOneVehicleNoSubscription(
+  currentVehicleId: string,
+  newSubscriptionId: string
+) {
+  // Assign subscription to new vehicle
+  console.log('here');
+  console.log('New Subscription Id: ', newSubscriptionId);
+  console.log('Current Vehicle Id: ', currentVehicleId);
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = ${newSubscriptionId}
+    WHERE id = ${currentVehicleId}
+  `;
+}
+
+export async function transferOneVehicle(
+  currentVehicleId: string,
+  newSubscriptionVehicleId: string,
+  newSubscriptionId: string
+) {
+  // Assign subscription to new vehicle
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = NULL
+    WHERE id = ${newSubscriptionVehicleId}
+  `;
+
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = ${newSubscriptionId}
+    WHERE id = ${currentVehicleId}
+  `;
+}
+
+export async function transferTwoVehicles(
+  currentVehicleId: string,
+  currentVehicleSubscriptionId: string,
+  newSubscriptionVehicleId: string,
+  newSubscriptionId: string
+  
+) {
+  // Temporarily remove both to prevent unique constraint conflicts
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = NULL
+    WHERE id IN (${currentVehicleId}, ${newSubscriptionVehicleId})
+  `;
+
+  // Swap the subscriptions
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = ${newSubscriptionId}
+    WHERE id = ${currentVehicleId}
+  `;
+
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = ${currentVehicleSubscriptionId}
+    WHERE id = ${newSubscriptionVehicleId}
+  `;
+}

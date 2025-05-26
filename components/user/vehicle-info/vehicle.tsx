@@ -66,23 +66,45 @@ export default function VehicleInfo({
     setSwapChoice('');
   };
 
-  const handleTransferConfirm = () => {
-    if (!selectedSubscription) return;
+  const handleTransferConfirm = async () => {
+    if (!selectedSubscription) {
+      console.error('No subscription selected for transfer.');
+      return;
+    }
   
-    // Do your transfer logic here
     const transferData = {
-      currentSubscription: vehicle?.subscription_id,
-      newSubscription: selectedSubscription.id,
-      swap: swapChoice,
+      currentVehicleId: vehicle?.id,
+      currentVehicleSubscriptionId: vehicle?.subscription_id,
+      newSubscriptionVehicleId: selectedSubscription.vehicle_id,
+      newSubscriptionId: selectedSubscription.id,
+      swapChoice: swapChoice,
     };
   
     console.log('Transferring:', transferData);
-    // Make your API call or state update here
   
-    // Reset state after confirming
-    setSelectedSubscription(undefined);
-    setSwapChoice('');
-    setShowTransferModal(false);
+    try {
+      const res = await fetch(`/api/users/user/${vehicle?.user_id}/vehicles/${vehicle?.id}/transfer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(transferData),
+      });
+  
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to transfer subscription');
+      }
+  
+      const responseData = await res.json();
+      console.log('Transfer successful:', responseData);
+  
+      // Optionally refresh or update UI state here
+    } catch (error) {
+      console.error('Transfer error:', error);
+    } finally {
+      setSelectedSubscription(undefined);
+      setSwapChoice('');
+      setShowTransferModal(false);
+    }
   };
 
   const handleAddClick = () => {
