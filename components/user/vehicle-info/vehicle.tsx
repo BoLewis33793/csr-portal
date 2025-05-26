@@ -1,6 +1,8 @@
+import { AddModal } from "@/components/add-modal";
 import { Modal } from "@/components/modal";
-import { Subscription, Vehicle } from "@/lib/definitions";
+import { Payment_Card, Subscription, Vehicle } from "@/lib/definitions";
 import { RiEdit2Line, RiSaveLine, RiVisaFill, RiCloseLine, RiArrowLeftRightLine, RiAddLine } from "@remixicon/react";
+import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 export default function VehicleInfo({
@@ -10,10 +12,17 @@ export default function VehicleInfo({
   vehicle: Vehicle | undefined;
   vehicles: Vehicle[];
 }) {
+  const router = useRouter();
+  
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | undefined>(undefined);
   const [swapChoice, setSwapChoice] = useState<string>('');
+  const [selectedPlan, setSelectedPlan] = useState('');
+  const [selectedFrequency, setSelectedFrequency] = useState('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  const [cardList, setCardList] = useState<Payment_Card[]>([]);
 
   const handleRemoveClick = () => {
     setShowRemoveModal(true);
@@ -23,10 +32,29 @@ export default function VehicleInfo({
     setShowRemoveModal(false);
   };
 
-  const handleRemoveConfirm = () => {
-    console.log("Vehicle removed");
+  const handleRemoveConfirm = async () => {
+    try {
+      const res = await fetch(`/api/users/user/${vehicle?.user_id}/vehicles/${vehicle?.id}/remove`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ vehicleId: vehicle?.id }),
+      });
+  
+      if (!res.ok) {
+        throw new Error('Failed to remove subscription');
+      }
+  
+      console.log('Subscription removed successfully');
+
+    } catch (error) {
+      console.error('Error:', error);
+    }
+
     setShowRemoveModal(false);
   };
+  
 
   const handleTransferClick = () => {
     setShowTransferModal(true);
@@ -57,6 +85,25 @@ export default function VehicleInfo({
     setShowTransferModal(false);
   };
 
+  const handleAddClick = () => {
+    setShowAddModal(true);
+  }
+  const handleAddCancel = () => {
+    setSelectedPlan('');
+    setSelectedFrequency('');
+    setSelectedPaymentMethod('');
+    setShowAddModal(false);
+  };
+
+  const handleAddConfirm = () => {
+    console.log('Added Subscription!');
+
+    setSelectedPlan('');
+    setSelectedFrequency('');
+    setSelectedPaymentMethod('');;
+    setShowAddModal(false);
+  };
+
   const [isEditingVehiclesInfo, setIsEditingVehicleInfo] = useState(false);
   const toggleEditPersonalInfo = () => setIsEditingVehicleInfo(prev => !prev);
 
@@ -77,6 +124,20 @@ export default function VehicleInfo({
     };
 
     fetchSubscriptions();
+  }, [vehicle?.user_id]);
+
+  useEffect(() => {
+    async function fetchPaymentCards() {
+      try {
+        const res = await fetch(`/api/users/user/${vehicle?.user_id}/payment-cards`);
+        const data = await res.json();
+        setCardList(data);
+      } catch (error) {
+        console.error("Failed to fetch Payment Cards:", error);
+      }
+    }
+
+    fetchPaymentCards();
   }, [vehicle?.user_id]);
 
   const vehicle_labels = [
@@ -102,19 +163,30 @@ export default function VehicleInfo({
             {isEditingVehiclesInfo && 
               <button 
                 onClick={toggleEditPersonalInfo}
-                className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
+                className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 hover:text-blue-100 hover:border-blue-100 rounded-2xl items-center"
               >
                 <p className="hidden desktop-large:block">Save</p>
                 <RiSaveLine className="w-[16px] h-[16px]"/>
               </button>
             }
-            <button 
-              onClick={toggleEditPersonalInfo}
-              className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
-            >
-              <p className="hidden desktop-large:block">{isEditingVehiclesInfo ? 'Cancel' : 'Edit'}</p>
-              <RiEdit2Line className="w-[16px] h-[16px]"/>
-            </button>
+            {isEditingVehiclesInfo && 
+              <button 
+                onClick={toggleEditPersonalInfo}
+                className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 hover:text-red-100 hover:border-red-100 rounded-2xl items-center"
+              >
+                <p className="hidden desktop-large:block">Cancel</p>
+                <RiEdit2Line className="w-[16px] h-[16px]"/>
+              </button>
+            }
+            {!isEditingVehiclesInfo && 
+              <button 
+                onClick={toggleEditPersonalInfo}
+                className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 hover:text-blue-100 hover:border-blue-100 rounded-2xl items-center"
+              >
+                <p className="hidden desktop-large:block">Edit</p>
+                <RiEdit2Line className="w-[16px] h-[16px]"/>
+              </button>
+            }
           </div>
         </div>
         <div className="flex-1 grid grid-cols-2 desktop-large:grid-cols-3 grid-rows-5 desktop-large:grid-rows-4 desktop-large:gap-y-2 gap-x-6">
@@ -138,25 +210,26 @@ export default function VehicleInfo({
             <div className="flex justify-between">
               <span className="text-black-100 font-semibold">Subscription</span>
               <div className="flex flex-row space-x-2">
+                <button
+                  onClick={handleTransferClick}
+                  className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 hover:text-blue-100 hover:border-blue-100 rounded-2xl items-center"
+                >
+                  <p className="hidden desktop-large:block">Transfer</p>
+                  <RiArrowLeftRightLine className="w-[14px] h-[14px]" />
+                </button>
                 {!vehicle?.subscription_name ? (
                   <button
-                    className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
+                    onClick={handleAddClick}
+                    className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 hover:text-blue-100 hover:border-blue-100 rounded-2xl items-center"
                   >
                     <p className="hidden desktop-large:block">Add</p>
                     <RiAddLine className="w-[14px] h-[14px]" />
                   </button>
                 ) : (
                   <>
-                    <button
-                      onClick={handleTransferClick}
-                      className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
-                    >
-                      <p className="hidden desktop-large:block">Transfer</p>
-                      <RiArrowLeftRightLine className="w-[14px] h-[14px]" />
-                    </button>
                     <button 
                       onClick={handleRemoveClick}
-                      className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
+                      className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 hover:text-red-100 hover:border-red-100 rounded-2xl items-center"
                     >
                       <p className="hidden desktop-large:block">Remove</p>
                       <RiCloseLine className="w-[14px] h-[14px]" />
@@ -279,7 +352,6 @@ export default function VehicleInfo({
                 </option>
               ))}
           </select>
-
           {selectedSubscription?.vehicle_id && (
             <>
               <label className="block text-sm text-gray-600 mb-2">
@@ -313,7 +385,6 @@ export default function VehicleInfo({
               </div>
             </>
           )}
-
           {/* Buttons */}
           <div className="flex justify-end space-x-3">
             <button
@@ -335,6 +406,74 @@ export default function VehicleInfo({
             </button>
           </div>
         </Modal>
+      )}
+      {showAddModal && (
+        <AddModal>
+          <h2 className="text-lg font-semibold mb-4">Add Subscription</h2>
+
+          <div className="space-y-4 mb-6">
+            {/* Plan Dropdown */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Plan</label>
+              <select
+                value={selectedPlan}
+                onChange={(e) => setSelectedPlan(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2"
+              >
+                <option value="">Select Plan</option>
+                <option value="basic">Basic</option>
+                <option value="premium">Gold</option>
+                <option value="enterprise">Premium</option>
+              </select>
+            </div>
+
+            {/* Frequency Dropdown */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Frequency</label>
+              <select
+                value={selectedFrequency}
+                onChange={(e) => setSelectedFrequency(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2"
+              >
+                <option value="">Select Frequency</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
+
+            {/* Payment Method Dropdown */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+              <select
+                value={selectedPaymentMethod}
+                onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2"
+              >
+                <option value="">Select Payment Method</option>
+                {cardList.map((card) => (
+                  <option key={card.id} value={card.id}>
+                    {card.card_type + ' ' + card.card_number.slice(-4)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={handleAddCancel}
+              className="px-4 py-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleAddConfirm}
+              className="px-4 py-2 rounded-md bg-blue-100 text-white hover:bg-blue-600"
+            >
+              Add
+            </button>
+          </div>
+        </AddModal>
       )}
     </div>
   );

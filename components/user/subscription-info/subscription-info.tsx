@@ -1,5 +1,6 @@
+import { AddModal } from "@/components/add-modal";
 import { Modal } from "@/components/modal";
-import { Subscription, Vehicle } from "@/lib/definitions";
+import { Payment_Card, Subscription, Vehicle } from "@/lib/definitions";
 import { RiEdit2Line, RiSaveLine, RiVisaFill, RiCloseLine, RiArrowLeftRightLine, RiAddLine } from "@remixicon/react";
 import { use, useEffect, useState } from "react";
 
@@ -7,9 +8,19 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showAddVehicleModal, setShowAddVehicleModal] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | undefined>(undefined);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [swapChoice, setSwapChoice] = useState<string>('');
+
+  const [vehicleMake, setVehicleMake] = useState('');
+  const [vehicleModel, setVehicleModel] = useState('');
+  const [vehicleYear, setVehicleYear] = useState('');
+  const [vehicleColor, setVehicleColor] = useState('');
+  const [vehiclePlate, setVehiclePlate] = useState('');
+  const [selectedSubscription, setSelectedSubscription] = useState<Subscription | undefined>(undefined);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [swapChoiceAdd, setSwapChoiceAdd] = useState<string>('');
 
   const handleCancelClick = () => {
     setShowCancelModal(true);
@@ -32,8 +43,26 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
     setShowRemoveModal(false);
   };
 
-  const handleRemoveConfirm = () => {
-    console.log("Vehicle removed");
+  const handleRemoveConfirm = async () => {
+    try {
+      const res = await fetch(`/api/users/user/${subscription?.user_id}/vehicles/${subscription?.vehicle_id}/remove`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ vehicleId: subscription?.vehicle_id }),
+      });
+  
+      if (!res.ok) {
+        throw new Error('Failed to remove vehicle');
+      }
+  
+      console.log('Vehicle removed successfully');
+
+    } catch (error) {
+      console.error('Error:', error);
+    }
+
     setShowRemoveModal(false);
   };
 
@@ -65,7 +94,42 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
     setSwapChoice('');
     setShowTransferModal(false);
   };
-  
+
+  const handleAddVehicleClick = () => {
+    setShowAddVehicleModal(true);
+  };
+
+  const handleAddVehicleCancel = () => {
+    setVehicleMake('');
+    setVehicleModel('');
+    setVehicleYear('');
+    setVehicleColor('');
+    setVehiclePlate('');
+    setSelectedSubscription(undefined);
+    setSwapChoice('');
+    setShowAddVehicleModal(false);
+  };
+
+  const handleAddVehicleConfirm = () => {
+    // Use the input state to add a new vehicle
+    const newVehicle = {
+      make: vehicleMake,
+      model: vehicleModel,
+      year: vehicleYear,
+      color: vehicleColor,
+      plate_number: vehiclePlate,
+      subscription_id: selectedSubscription?.id || null
+    };
+    // Do something with newVehicle
+    setVehicleMake('');
+    setVehicleModel('');
+    setVehicleYear('');
+    setVehicleColor('');
+    setVehiclePlate('');
+    setSelectedSubscription(undefined);
+    setSwapChoice('');
+    setShowAddVehicleModal(false);
+  };
 
   useEffect (() => {
     const fetchSubscriptions = async () => {
@@ -74,6 +138,21 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
         const data = await res.json();
         console.log("Fetched subscriptions:", data);
         setVehicles(data);
+      } catch (error) {
+        console.error("Failed to fetch vehicles: ", error);
+      }
+    };
+
+    fetchSubscriptions();
+  }, [subscription?.user_id]);
+
+  useEffect (() => {
+    const fetchSubscriptions = async () => {
+      try {
+        const res = await fetch(`/api/users/user/${subscription?.user_id}/subscriptions`);
+        const data = await res.json();
+        console.log("Fetched subscriptions:", data);
+        setSubscriptions(data);
       } catch (error) {
         console.error("Failed to fetch vehicles: ", error);
       }
@@ -126,7 +205,7 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
           <div className="flex flex-row space-x-2">
             <button
             onClick={handleCancelClick}
-              className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
+              className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 hover:text-red-100 hover:border-red-100 rounded-2xl items-center"
             >
               <p className="hidden desktop-large:block">Cancel</p>
               <RiCloseLine className="w-[14px] h-[14px]"/>
@@ -157,32 +236,33 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
         <div className="flex justify-between">
           <span className="text-black-100 font-semibold">Vehicle</span>
           <div className="flex flex-row space-x-2">
-                {!subscription?.make ? (
-                  <button 
-                    className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
-                  >
-                    <p className="hidden desktop-large:block">Add</p>
-                    <RiAddLine className="w-[14px] h-[14px]" />
-                  </button>
-                ) : (
-                  <>
-                    <button
-                      onClick={handleTransferClick}
-                      className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
-                    >
-                      <p className="hidden desktop-large:block">Transfer</p>
-                      <RiArrowLeftRightLine className="w-[14px] h-[14px]" />
-                    </button>
-                    <button
-                      onClick={handleRemoveClick}
-                      className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
-                    >
-                      <p className="hidden desktop-large:block">Remove</p>
-                      <RiCloseLine className="w-[14px] h-[14px]" />
-                    </button>
-                  </>
-                )}
-              </div>
+            <button
+              onClick={handleTransferClick}
+              className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 hover:text-blue-100 hover:border-blue-100 rounded-2xl items-center"
+            >
+              <p className="hidden desktop-large:block">Transfer</p>
+              <RiArrowLeftRightLine className="w-[14px] h-[14px]" />
+            </button>
+            {!subscription?.make ? (
+              <button 
+                onClick={handleAddVehicleClick}
+                className="flex flex-row text-grey-300 text-[12px] border border-grey-200 gap-1 py-1 px-2 hover:text-blue-100 hover:border-blue-100 rounded-2xl items-center"
+              >
+                <p className="hidden desktop-large:block">Add</p>
+                <RiAddLine className="w-[14px] h-[14px]" />
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={handleRemoveClick}
+                  className="flex flex-row text-grey-300 text-[12px] gap-1 py-1 px-2 border border-grey-200 hover:text-red-100 hover:border-red-100 rounded-2xl items-center"
+                >
+                  <p className="hidden desktop-large:block">Remove</p>
+                  <RiCloseLine className="w-[14px] h-[14px]" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
         <div className="flex-1 flex flex-col rounded-xl mt-2 border overflow-hidden">
           {subscription?.make ? (
@@ -326,6 +406,82 @@ export default function SubscriptionInfo({ subscription }: { subscription: Subsc
             </button>
           </div>
         </Modal>
+      )}
+      {showAddVehicleModal && (
+        <AddModal>
+          <h2 className="text-lg font-semibold mb-4">Add Vehicle</h2>
+
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {/* Make */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Make</label>
+              <input
+                type="text"
+                value={vehicleMake}
+                onChange={(e) => setVehicleMake(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2"
+              />
+            </div>
+
+            {/* Model */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
+              <input
+                type="text"
+                value={vehicleModel}
+                onChange={(e) => setVehicleModel(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2"
+              />
+            </div>
+
+            {/* Year */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+              <input
+                type="number"
+                value={vehicleYear}
+                onChange={(e) => setVehicleYear(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2"
+              />
+            </div>
+
+            {/* Color */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+              <input
+                type="text"
+                value={vehicleColor}
+                onChange={(e) => setVehicleColor(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2"
+              />
+            </div>
+
+            {/* Plate Number */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Plate Number</label>
+              <input
+                type="text"
+                value={vehiclePlate}
+                onChange={(e) => setVehiclePlate(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={handleAddVehicleCancel}
+              className="px-4 py-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleAddVehicleConfirm}
+              className="px-4 py-2 rounded-md bg-blue-100 text-white hover:bg-blue-600"
+            >
+              Add
+            </button>
+          </div>
+        </AddModal>
       )}
     </div>
   );

@@ -29,8 +29,6 @@ export async function getUsers() {
   return users;
 }
 
-
-
 export async function getUserById(id: string) {
   const result = await sql`SELECT * FROM users WHERE id = ${id}`;
   return result[0]; // Return the first (and only) user found
@@ -154,3 +152,10 @@ export async function getUsersWithSearch(query?: string) {
   `;
 }
 
+export async function removeSubscriptionFromVehicle(vehicleId: string) {
+  await sql`
+    UPDATE vehicles
+    SET subscription_id = NULL
+    WHERE id = ${vehicleId}
+  `;
+}
