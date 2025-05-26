@@ -3,12 +3,11 @@ import { updateUserPersonalInfo } from '@/lib/db';
 import { personalInfoSchema } from '@/lib/userSchema';
 import { ZodError } from 'zod';
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
   try {
-    const userId = Number((await params).id);
+    const { id } = await context.params;
+    const userId = Number(id);
+
     const body = await req.json();
 
     console.log("Received body:", body);

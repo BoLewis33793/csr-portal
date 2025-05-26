@@ -3,12 +3,11 @@ import { updateUserAddressInfo } from '@/lib/db';
 import { addressSchema } from '@/lib/userSchema';
 import { ZodError } from 'zod';
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
   try {
-    const userId = Number((await params).id);
+    const { id } = await context.params;
+    const userId = Number(id);
+
     const body = await req.json();
 
     console.log("Received body:", body);
@@ -20,7 +19,6 @@ export async function PATCH(
       userId,
       addressInfo: parsedAddressInfo,
     });
-    
 
     return NextResponse.json({ message: 'User updated successfully' }, { status: 200 });
   } catch (error) {

@@ -182,16 +182,20 @@ export default function Vehicles({ id }: { id: number }) {
                       <td className="min-w-[80px] px-4 py-2">{vehicle.color}</td>
                       <td className="min-w-[60px] px-4 py-2">{vehicle.year}</td>
                       <td className="min-w-[100px] px-4 py-2">{vehicle.plate_number}</td>
-                      <td className="min-w-[140px] px-4 py-2">{vehicle.subscription_name}</td>
+                      <td className="min-w-[140px] px-4 py-2">
+                        {vehicle.subscription_name ? vehicle.subscription_name : "None"}
+                      </td>
                       <td className="min-w-[100px] px-4 py-2">
                         <p
                           className={`inline-block py-[3px] px-3 rounded-2xl ${
-                            vehicle?.subscription_status?.toLowerCase() === "active"
+                            vehicle?.subscription_status && vehicle.subscription_status.toLowerCase() === "active"
                               ? "bg-green-200 text-green-800"
-                              : "bg-red-300 text-red-800"
+                              : vehicle?.subscription_status && vehicle.subscription_status.toLowerCase() !== "active"
+                              ? "bg-red-300 text-red-800"
+                              : "" // no color classes if no status or None
                           }`}
                         >
-                          {vehicle?.subscription_status ?? "None"}
+                          {vehicle?.subscription_status ? vehicle.subscription_status : "None"}
                         </p>
                       </td>
                     </tr>

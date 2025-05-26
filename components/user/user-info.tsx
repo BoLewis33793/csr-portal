@@ -10,11 +10,7 @@ import type { z } from "zod";
 type PersonalInfo = z.infer<typeof personalInfoSchema>;
 type AddressInfo = z.infer<typeof addressSchema>;
 
-export default function UserInfo({
-  userInfo,
-}: {
-  userInfo: User | undefined;
-}) {
+export default function UserInfo({ userInfo }: { userInfo: User | undefined }) {
   const [isEditingPersonalInfo, setIsEditingPersonalInfo] = useState(false);
   const [isEditingAddressInfo, setIsEditingAddressInfo] = useState(false);
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -26,14 +22,6 @@ export default function UserInfo({
     reset: resetPersonal,
   } = useForm<PersonalInfo>({
     resolver: zodResolver(personalInfoSchema),
-    defaultValues: {
-      first_name: user?.first_name,
-      last_name: user?.last_name,
-      email: user?.email,
-      phone_number: user?.phone_number,
-      date_of_birth: user?.date_of_birth,
-      gender: user?.gender,
-    },
   });
 
   const {
@@ -43,111 +31,91 @@ export default function UserInfo({
     reset: resetAddress,
   } = useForm<AddressInfo>({
     resolver: zodResolver(addressSchema),
-    defaultValues: {
-      street_address: user?.street_address,
-      city: user?.city,
-      state: user?.state,
-      postal_code: user?.postal_code,
-      country: user?.country,
-    },
   });
 
   const onSubmitPersonal = async (data: PersonalInfo) => {
-    console.log('personal info: ', data);
     try {
       const res = await fetch(`/api/users/user/${user?.id}/personal-info/update`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-  
+
       if (!res.ok) {
         const errorData = await res.json();
         console.error('Failed to update personal info:', errorData.message || res.statusText);
       } else {
         console.log('Personal info updated successfully');
         setIsEditingPersonalInfo(false);
+        await fetchAndSetUser(); // refresh form with updated data
       }
     } catch (error) {
       console.error('Network error while updating personal info:', error);
-    } finally {
-      fetchUser();
     }
   };
-  
+
   const onSubmitAddress = async (data: AddressInfo) => {
     try {
       const res = await fetch(`/api/users/user/${user?.id}/address/update`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-  
+
       if (!res.ok) {
         const errorData = await res.json();
         console.error('Failed to update address info:', errorData.message || res.statusText);
       } else {
         console.log('Address info updated successfully');
         setIsEditingAddressInfo(false);
+        await fetchAndSetUser(); // refresh form with updated data
       }
     } catch (error) {
       console.error('Network error while updating address info:', error);
     }
   };
-  
 
   const onError = (errors: any) => {
     console.error("Validation errors:", errors);
   };
 
-  async function fetchUser() {
+  async function fetchAndSetUser() {
+    if (!userInfo?.id) return;
     try {
-      const res = await fetch(`/api/users/user/${userInfo?.id}`);
+      const res = await fetch(`/api/users/user/${userInfo.id}`);
       const data = await res.json();
       setUser(data);
+  
+      // Format date_of_birth to YYYY-MM-DD for input[type="date"]
+      const formattedDOB = data.date_of_birth
+        ? new Date(data.date_of_birth).toISOString().split('T')[0]
+        : '';
+  
+      resetPersonal({
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        phone_number: data.phone_number,
+        date_of_birth: formattedDOB,
+        gender: data.gender,
+      });
+  
+      resetAddress({
+        street_address: data.street_address,
+        city: data.city,
+        state: data.state,
+        postal_code: data.postal_code,
+        country: data.country,
+      });
     } catch (error) {
       console.error("Failed to fetch user:", error);
     }
   }
+  
 
   useEffect(() => {
-    async function fetchAndSetUser() {
-      if (!userInfo?.id) return;
-  
-      try {
-        const res = await fetch(`/api/users/user/${userInfo.id}`);
-        const data = await res.json();
-        setUser(data);
-  
-        // Reset form values with fresh data
-        resetPersonal({
-          first_name: data.first_name,
-          last_name: data.last_name,
-          email: data.email,
-          phone_number: data.phone_number,
-          date_of_birth: data.date_of_birth,
-          gender: data.gender,
-        });
-  
-        resetAddress({
-          street_address: data.street_address,
-          city: data.city,
-          state: data.state,
-          postal_code: data.postal_code,
-          country: data.country,
-        });
-  
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
-      }
-    }
-  
     fetchAndSetUser();
-  }, [userInfo?.id]);  
+  }, [userInfo?.id]);
 
   return (
     <div className="flex flex-col h-full space-y-3">
@@ -159,10 +127,7 @@ export default function UserInfo({
             <span className="text-black-100 font-semibold">Personal Information</span>
             <div className="flex flex-row space-x-2">
               {isEditingPersonalInfo && (
-                <button
-                  type="submit"
-                  className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
-                >
+                <button type="submit" className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center">
                   Save
                   <RiSaveLine className="w-[16px] h-[16px]" />
                 </button>
@@ -170,8 +135,10 @@ export default function UserInfo({
               <button
                 type="button"
                 onClick={() => {
+                  if (isEditingPersonalInfo) {
+                    resetPersonal(); // revert changes if cancelling
+                  }
                   setIsEditingPersonalInfo(prev => !prev);
-                  resetPersonal();
                 }}
                 className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
               >
@@ -180,7 +147,7 @@ export default function UserInfo({
               </button>
             </div>
           </div>
-          <div className={`grid grid-cols-2 gap-y-6 gap-x-6`}>
+          <div className="grid grid-cols-2 gap-y-6 gap-x-6">
             {[
               { label: 'First Name', name: 'first_name' },
               { label: 'Last Name', name: 'last_name' },
@@ -200,14 +167,12 @@ export default function UserInfo({
                 ) : (
                   <p className="pt-1">
                     {name === 'date_of_birth'
-                      ? new Date(user?.[name as keyof UserField] as string).toLocaleDateString('en-US')
+                      ? user?.[name] ? new Date(user[name] as string).toLocaleDateString('en-US') : ''
                       : user?.[name as keyof UserField]}
                   </p>
                 )}
                 {personalErrors[name as keyof PersonalInfo] && (
-                  <p className="text-red-500 text-sm">
-                    {personalErrors[name as keyof PersonalInfo]?.message as string}
-                  </p>
+                  <p className="text-red-500 text-sm">{personalErrors[name as keyof PersonalInfo]?.message as string}</p>
                 )}
               </div>
             ))}
@@ -220,10 +185,7 @@ export default function UserInfo({
             <span className="text-black-100 font-semibold">Address</span>
             <div className="flex flex-row space-x-2">
               {isEditingAddressInfo && (
-                <button
-                  type="submit"
-                  className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
-                >
+                <button type="submit" className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center">
                   Save
                   <RiSaveLine className="w-[16px] h-[16px]" />
                 </button>
@@ -231,8 +193,10 @@ export default function UserInfo({
               <button
                 type="button"
                 onClick={() => {
+                  if (isEditingAddressInfo) {
+                    resetAddress(); // revert changes if cancelling
+                  }
                   setIsEditingAddressInfo(prev => !prev);
-                  resetAddress();
                 }}
                 className="flex flex-row text-grey-300 text-[14px] gap-1 py-1 px-2 border border-grey-200 rounded-2xl items-center"
               >
@@ -260,9 +224,7 @@ export default function UserInfo({
                   <p className="pt-1">{user?.[name as keyof UserField]}</p>
                 )}
                 {addressErrors[name as keyof AddressInfo] && (
-                  <p className="text-red-500 text-sm">
-                    {addressErrors[name as keyof AddressInfo]?.message as string}
-                  </p>
+                  <p className="text-red-500 text-sm">{addressErrors[name as keyof AddressInfo]?.message as string}</p>
                 )}
               </div>
             ))}
